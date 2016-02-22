@@ -1,18 +1,29 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { Router, Route, Link, browserHistory } from 'react-router';
-import { createStore } from 'redux';
-import { connect, Provider } from 'react-redux';
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { Router, Route, Link, browserHistory } from 'react-router'
+import { createStore, applyMiddleware } from 'redux'
+import { connect, Provider } from 'react-redux'
+import thunkMiddleware from 'redux-thunk'
+import createLogger from 'redux-logger'
 
-import App from './components/App'
+import App from './containers/App'
+import Login from './components/Login'
 import Search from './components/Search'
+import Spaces from './components/Spaces'
 
 import piBase from './reducers'
 
-let store = createStore(piBase)
+const loggerMiddleware = createLogger()
+
+let store = createStore(piBase, undefined, applyMiddleware(
+    thunkMiddleware,
+    loggerMiddleware // TODO: mute form change events
+))
 
 const routes = <Route path="/" component={App}>
-  <Route path="search" component={Search} />
+    <Route path="spaces" component={Spaces} />
+    <Route path="login" component={Login} />
+    <Route path="search" component={Search} />
 </Route>
 
 ReactDOM.render(
