@@ -9,7 +9,8 @@ import createLogger from 'redux-logger'
 import App from './containers/App'
 import Login from './components/Login'
 import Search from './components/Search'
-import Spaces from './components/Spaces'
+import Spaces from './containers/Spaces'
+import Space from './components/Space'
 
 import piBase from './reducers'
 
@@ -21,7 +22,9 @@ let store = createStore(piBase, undefined, applyMiddleware(
 ))
 
 const routes = <Route path="/" component={App}>
-    <Route path="spaces" component={Spaces} />
+    <Route path="spaces" component={Spaces}>
+        <Route path=":id" component={Space}/>
+    </Route>
     <Route path="login" component={Login} />
     <Route path="search" component={Search} />
 </Route>
