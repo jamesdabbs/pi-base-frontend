@@ -10,11 +10,15 @@ import App from './containers/App'
 import Login from './components/Login'
 import Search from './components/Search'
 import Spaces from './containers/Spaces'
-import Space from './components/Space'
+import Space from './containers/Space'
 
 import piBase from './reducers'
 
-const loggerMiddleware = createLogger()
+const loggerMiddleware = createLogger({
+    predicate: (getState, action) => (
+      !action.type.endsWith("/CHANGE")
+    )
+})
 
 let store = createStore(piBase, undefined, applyMiddleware(
     thunkMiddleware,
@@ -22,9 +26,8 @@ let store = createStore(piBase, undefined, applyMiddleware(
 ))
 
 const routes = <Route path="/" component={App}>
-    <Route path="spaces" component={Spaces}>
-        <Route path=":id" component={Space}/>
-    </Route>
+    <Route path="spaces" component={Spaces} />
+    <Route path="spaces/:id" component={Space} />
     <Route path="login" component={Login} />
     <Route path="search" component={Search} />
 </Route>

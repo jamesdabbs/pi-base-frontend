@@ -1,7 +1,19 @@
 import { combineReducers } from 'redux'
 import { reducer as formReducer } from 'redux-form'
 
-import { LOGIN, LOGOUT, REQUEST_PROPERTIES, RECEIVE_PROPERTIES, RECEIVE_PROPERTIES_FAILED, REQUEST_SPACES, RECEIVE_SPACES, RECEIVE_SPACES_FAILED } from '../actions'
+import { LOGIN, LOGOUT, FLASH_WARNING, SEARCH } from '../actions'
+
+import spaces from './spaces'
+import traitLookup from './traitLookup'
+
+const flash = (state={}, action) => {
+    switch (action.type) {
+    case FLASH_WARNING:
+        return { klass: "warning", message: action.message }
+    default:
+        return state
+    }
+}
 
 const user = (state=null, action) => {
     switch (action.type) {
@@ -9,6 +21,15 @@ const user = (state=null, action) => {
         return action.user
     case LOGOUT:
         return null
+    default:
+        return state
+    }
+}
+
+const search = (state=null, action) => {
+    switch (action.type) {
+    case SEARCH:
+        return action.q
     default:
         return state
     }
@@ -25,52 +46,13 @@ const token = (state=null, action) => {
     }
 }
 
-const properties = (state=[], action) => {
-    switch (action.type) {
-    case REQUEST_PROPERTIES:
-        return Object.assign({}, state, {
-            fetching: true
-        })
-    case RECEIVE_PROPERTIES:
-        return Object.assign({}, state, {
-            fetching: false,
-            list: action.properties
-        })
-    case RECEIVE_PROPERTIES_FAILED:
-        return Object.assign({}, state, {
-            fetching: false
-        })
-    default:
-        return state
-    }
-}
-
-const spaces = (state={ list: [], page: {} }, action) => {
-    switch (action.type) {
-    case REQUEST_SPACES:
-        return Object.assign({}, state, {
-            fetching: true
-        })
-    case RECEIVE_SPACES:
-        return Object.assign({}, state, {
-            fetching: false,
-            list:     action.spaces.spaces,
-            page:     action.spaces.page
-        })
-    case RECEIVE_SPACES_FAILED:
-        return Object.assign({}, state, {
-            fetching: false
-        })
-    default:
-        return state
-    }
-}
-
 const piBase = combineReducers({
+    flash,
     user,
     token,
-    properties,
     spaces,
+    search,
+    traitLookup,
     form: formReducer
 })
 

@@ -21,6 +21,7 @@ const Navbar = ({ user, logout }) => (
             <a className="navbar-brand">Pi-Base</a>
             <ul className="nav navbar-nav">
                 <li><Link to="/spaces">Spaces</Link></li>
+                <li><Link to="/search">Search</Link></li>
             </ul>
             { user ? <LoggedIn user={user} logout={logout}/> : <LoggedOut /> }
         </div>

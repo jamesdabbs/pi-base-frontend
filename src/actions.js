@@ -1,39 +1,31 @@
-export const LOGIN                     = 'LOGIN'
-export const LOGOUT                    = 'LOGOUT'
-export const CREATE_SPACE              = 'CREATE_SPACE'
-export const REQUEST_PROPERTIES        = 'REQUEST_PROPERTIES'
-export const RECEIVE_PROPERTIES        = 'RECEIVE_PROPERTIES'
-export const RECEIVE_PROPERTIES_FAILED = 'RECEIVE_PROPERTIES_FAILED'
-export const REQUEST_SPACES        = 'REQUEST_SPACES'
-export const RECEIVE_SPACES        = 'RECEIVE_SPACES'
-export const RECEIVE_SPACES_FAILED = 'RECEIVE_SPACES_FAILED'
+import * as S from './reducers/spaces'
 
-export function createSpace(title, description) {
-    return { type: CREATE_SPACE, title, description }
+export const LOGIN  = 'LOGIN'
+export const LOGOUT = 'LOGOUT'
+
+export const FLASH_WARNING = 'FLASH_WARNING'
+
+export const FETCH_STARTED  = 'FETCH_STARTED'
+export const FETCH_COMPLETE = 'FETCH_COMPLETE'
+export const FETCH_FAILED   = 'FETCH_FAILED'
+
+export const FETCH_SPACES    = 'FETCH_SPACES'
+export const FETCH_SPACE     = 'FETCH_SPACE'
+export const FETCH_TRAIT_MAP = 'FETCH_TRAIT_MAP'
+
+export const SELECT_SPACE = 'SELECT_SPACE'
+export const SEARCH       = 'SEARCH/CHANGE'
+
+const fetchStarted  = (type)        => ({ type,        state: FETCH_STARTED  })
+const fetchComplete = (type, data)  => ({ type, data,  state: FETCH_COMPLETE })
+const fetchFailed   = (type, error) => ({ type, error, state: FETCH_FAILED   })
+
+export function warn(message) {
+    return { type: FLASH_WARNING, message }
 }
 
-export function requestProperties() {
-    return { type: REQUEST_PROPERTIES }
-}
-
-export function receiveProperties(properties) {
-    return { type: RECEIVE_PROPERTIES, properties }
-}
-
-export function receivePropertiesFailed(properties) {
-    return { type: RECEIVE_PROPERTIES_FAILED, properties }
-}
-
-export function requestSpaces() {
-    return { type: REQUEST_SPACES }
-}
-
-export function receiveSpaces(spaces) {
-    return { type: RECEIVE_SPACES, spaces }
-}
-
-export function receiveSpacesFailed(spaces) {
-    return { type: RECEIVE_SPACES_FAILED, spaces }
+export function search(q) {
+    return { type: SEARCH, q }
 }
 
 // TODO: custom get / post / ... functions with host, tokens, &c
@@ -68,44 +60,55 @@ export function logout(token) {
     }
 }
 
-const shouldFetchProperties = (state) => {
-    return true
-}
-
-const fetchProperties = () => {
-    return dispatch => {
-        dispatch(requestProperties())
-        return fetch(`${root}/properties`)
-                     .then(req => req.json())
-                     .then(json => dispatch(receiveProperties(json)))
-                     .catch((e) => dispatch(receivePropertiesFailed()))
-    }
-}
-
-export function refreshProperties() {
-    return (dispatch, getState) => {
-        if (shouldFetchProperties(getState())) {
-            return dispatch(fetchProperties())
+const fetcher = (type) => {
+    return (url) => {
+        return dispatch => {
+            dispatch(fetchStarted(type))
+            return fetch(`${root}${url}`)
+                .then(req => req.json())
+                .then(json => dispatch(fetchComplete(type, json)))
+                .catch((e) => dispatch(fetchFailed(type, e)))
         }
     }
 }
 
-const fetchSpacePage = (n) => {
-    return dispatch => {
-        dispatch(requestSpaces())
-        return fetch(`${root}/spaces?page=${n || 1}&per_page=10`)
-            .then(req => req.json())
-            .then(json => dispatch(receiveSpaces(json)))
-            .catch((e) => dispatch(receiveSpacesFailed()))
+export function handleFetch(state, action, onComplete) {
+    switch (action.state) {
+    case FETCH_STARTED:
+        return state.merge({fetching: true})
+    case FETCH_COMPLETE:
+        return state.merge({fetching: false}).merge(onComplete(state, action.data))
+    case FETCH_FAILED:
+        return state.merge({fetching: false})
     }
 }
 
-const shouldFetchSpaces = (n, state) => (state.page !== n)
+const fetchSpacePage = (n) => {
+    return fetcher(FETCH_SPACES)(`/spaces?page=${n || 1}&per_page=10`)
+}
+
+const fetchSpace = (id) => {
+    return fetcher(FETCH_SPACE)(`/spaces/${id}`)
+}
+
+export function fetchTraitMap() {
+    return fetcher(FETCH_TRAIT_MAP)('/universe')
+}
 
 export function syncSpacePage(n) {
     return (dispatch, getState) => {
-        if (shouldFetchSpaces(n, getState().spaces)) {
+        if (n !== S.activePage(getState())) {
             return dispatch(fetchSpacePage(n))
+        }
+    }
+}
+
+export function focusSpace(spaceId) {
+    spaceId = parseInt(spaceId)
+    return (dispatch, getState) => {
+        dispatch({ type: SELECT_SPACE, spaceId })
+        if (!S.selectedSpace(getState())) {
+            return dispatch(fetchSpace(spaceId))
         }
     }
 }

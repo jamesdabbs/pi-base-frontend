@@ -3,7 +3,8 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { Pagination } from 'react-bootstrap'
 
-import { syncSpacePage } from '../actions.js'
+import { syncSpacePage } from '../actions'
+import * as S from '../reducers/spaces'
 
 const Space = (space) => (
     <div>
@@ -27,17 +28,18 @@ class Spaces extends Component {
         return (
             <div>
                 <Pagination
-                    items={this.props.page.pages}
-                    maxButtons={7}
-                    first={true}
-                    prev={true}
-                    next={true}
-                    last={true}
-                    activePage={this.props.page.number}
-                    onSelect={this.handlePageSelect}/>
+                    items      = {this.props.totalPages}
+                    maxButtons = {7}
+                    first      = {true}
+                    prev       = {true}
+                    next       = {true}
+                    last       = {true}
+                    activePage = {this.props.activePage}
+                    onSelect   = {this.handlePageSelect}
+                />
                 <h1>
                     Spaces
-                    <span className="badge">{this.props.page.items}</span>
+                    <span className="badge">{this.props.totalItems}</span>
                 </h1>
                 {this.props.spaces.map(space => <Space key={space.id} {...space}/>)}
             </div>
@@ -47,8 +49,10 @@ class Spaces extends Component {
 
 export default connect(
     (state) => ({
-        spaces: state.spaces.list,
-        page:   state.spaces.page
+        spaces:     S.page(state),
+        activePage: S.activePage(state),
+        totalPages: S.totalPages(state),
+        totalItems: S.totalItems(state)
     }),
     (dispatch) => ({
         setPage: (n) => { dispatch(syncSpacePage(n)) }

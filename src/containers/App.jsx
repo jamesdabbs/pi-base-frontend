@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 
-import { refreshProperties, loginWithToken, logout } from '../actions'
+import { refreshProperties, loginWithToken, logout, fetchTraitMap } from '../actions'
 import Navbar from '../components/Navbar'
 
 const tokenFromHash = () => {
@@ -17,7 +17,7 @@ const tokenFromStorage = () => {
 
 class App extends Component {
     componentDidMount() {
-        //this.props.dispatch(refreshProperties())
+        this.props.fetchTraitMap()
 
         const token = tokenFromHash() || tokenFromStorage()
         if (token) { this.props.login(token) }
@@ -27,7 +27,12 @@ class App extends Component {
         return (
             <div>
                 <Navbar user={this.props.user} logout={this.props.logout} />
-                <div className="container">{this.props.children}</div>
+                <div className="container">
+                    {this.props.flash.message
+                        ? <div className={"alert alert-" + this.props.flash.klass}>{this.props.flash.message}</div>
+                        : ""}
+                    {this.props.children}
+                </div>
             </div>
         )
     }
@@ -36,14 +41,16 @@ class App extends Component {
 function mapStateToProps(state) {
     return {
         user:  state.user,
-        token: state.token
+        token: state.token,
+        flash: state.flash
     }
 }
 
 function mapDispatchToProps(dispatch, ownProps) {
     return {
         login:  (token) => { dispatch(loginWithToken(token)) },
-        logout: () => { dispatch(logout()) }
+        logout: () => { dispatch(logout()) },
+        fetchTraitMap: () => { dispatch(fetchTraitMap()) }
     }
 }
 
