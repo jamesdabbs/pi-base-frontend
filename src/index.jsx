@@ -21,8 +21,8 @@ const loggerMiddleware = createLogger({
 })
 
 let store = createStore(piBase, undefined, applyMiddleware(
-    thunkMiddleware,
-    loggerMiddleware // TODO: mute form change events
+    // loggerMiddleware,
+    thunkMiddleware
 ))
 
 const routes = <Route path="/" component={App}>

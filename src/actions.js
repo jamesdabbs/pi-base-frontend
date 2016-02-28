@@ -9,9 +9,10 @@ export const FETCH_STARTED  = 'FETCH_STARTED'
 export const FETCH_COMPLETE = 'FETCH_COMPLETE'
 export const FETCH_FAILED   = 'FETCH_FAILED'
 
-export const FETCH_SPACES    = 'FETCH_SPACES'
-export const FETCH_SPACE     = 'FETCH_SPACE'
-export const FETCH_TRAIT_MAP = 'FETCH_TRAIT_MAP'
+export const FETCH_SPACES     = 'FETCH_SPACES'
+export const FETCH_PROPERTIES = 'FETCH_PROPERTIES'
+export const FETCH_TRAITS     = 'FETCH_TRAITS'
+export const FETCH_SPACE      = 'FETCH_SPACE'
 
 export const SELECT_SPACE = 'SELECT_SPACE'
 export const SEARCH       = 'SEARCH/CHANGE'
@@ -60,15 +61,13 @@ export function logout(token) {
     }
 }
 
-const fetcher = (type) => {
-    return (url) => {
-        return dispatch => {
-            dispatch(fetchStarted(type))
-            return fetch(`${root}${url}`)
-                .then(req => req.json())
-                .then(json => dispatch(fetchComplete(type, json)))
-                .catch((e) => dispatch(fetchFailed(type, e)))
-        }
+const fetcher = (type, url) => {
+    return dispatch => {
+        dispatch(fetchStarted(type))
+        return fetch(`${root}${url}`)
+            .then(req => req.json())
+            .then(json => dispatch(fetchComplete(type, json)))
+            .catch((e) => dispatch(fetchFailed(type, e)))
     }
 }
 
@@ -83,17 +82,22 @@ export function handleFetch(state, action, onComplete) {
     }
 }
 
-const fetchSpacePage = (n) => {
-    return fetcher(FETCH_SPACES)(`/spaces?page=${n || 1}&per_page=10`)
-}
-
 const fetchSpace = (id) => {
-    return fetcher(FETCH_SPACE)(`/spaces/${id}`)
+    return fetcher(FETCH_SPACE, `/spaces/${id}`)
 }
 
-export function fetchTraitMap() {
-    return fetcher(FETCH_TRAIT_MAP)('/universe')
+export function fetchSpaces() {
+    return fetcher(FETCH_SPACES, '/spaces')
 }
+
+export function fetchProperties() {
+    return fetcher(FETCH_PROPERTIES, '/properties')
+}
+
+export function fetchTraits() {
+    return fetcher(FETCH_TRAITS, '/universe')
+}
+
 
 export function syncSpacePage(n) {
     return (dispatch, getState) => {

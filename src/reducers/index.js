@@ -1,10 +1,12 @@
 import { combineReducers } from 'redux'
 import { reducer as formReducer } from 'redux-form'
+import { Map, List } from 'immutable'
 
 import { LOGIN, LOGOUT, FLASH_WARNING, SEARCH } from '../actions'
 
 import spaces from './spaces'
-import traitLookup from './traitLookup'
+import properties from './properties'
+import traits from './traits'
 
 const flash = (state={}, action) => {
     switch (action.type) {
@@ -51,9 +53,29 @@ const piBase = combineReducers({
     user,
     token,
     spaces,
+    properties,
+    traits,
     search,
-    traitLookup,
     form: formReducer
 })
 
 export default piBase
+
+function searchForSpaceIdsByFormula(state, formula) {
+    if (!formula) { return List() }
+
+    if (formula.and) {
+        // TODO: union of lists
+    } else if (formula.or) {
+        // TODO: intersection of lists
+    } else if (formula.property) {
+        return state.traits.filter((props, spaceId) => (
+            props[formula.property] === formula.value
+        )).keySeq()
+    }
+}
+
+export function searchByFormula(state, formula) {
+    return searchForSpaceIdsByFormula(state, formula).
+        map(spaceId => state.spaces.getIn(['entities', parseInt(spaceId)]))
+}

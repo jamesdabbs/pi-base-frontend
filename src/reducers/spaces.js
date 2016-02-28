@@ -32,13 +32,11 @@ export function selectedSpace(state) {
 export default function spaces(state=initial, action) {
     switch (action.type) {
     case FETCH_SPACES:
-        return handleFetch(state, action, (state, data) => ({
-            entities:   Map(data.spaces.map(s => [s.id, s])),
-            pageIds:    data.spaces.map(s => s.id),
-            activePage: data.page.number,
-            totalPages: data.page.pages,
-            totalItems: data.page.items
-        }))
+        return handleFetch(state, action, (state, data) => {
+            return {
+                entities: Map(data.map((space) => [space.id, space]))
+            }
+        })
     case FETCH_SPACE:
         return handleFetch(state, action, (state, data) => state.setIn(["entities", data.id], data))
     case SELECT_SPACE:
