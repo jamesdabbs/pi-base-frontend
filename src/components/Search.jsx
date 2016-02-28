@@ -62,28 +62,36 @@ const propertySuggestions = (pmap, q) => {
     return suggestions
 }
 
+const sepWith = (delimiter) => (componentArray) => {
+    let result = []
+    componentArray.map((comp,i) => {
+        result.push(comp)
+        result.push(<span key={'sepWith' + i}> {delimiter} </span>)
+    })
+    result.pop()
+    return result
+}
+
 const FormulaDisplay = ({ formula, properties }) => {
     if (!formula) { return (<span/>) }
 
     if (formula.property) {
         var label = properties.get(formula.property)
         if (formula.value === false) {
-            label = "~" + label
+            label = "¬" + label
         }
         return (<Link to={"property/"+formula.property}>{label}</Link>)
     } else if (formula.and) {
-        // TODO: +
         return (
-            <span>({formula.and.map((sf) =>
-                <FormulaDisplay formula={sf} properties={properties}/>
-            )})</span>
+            <span>({sepWith("∧")(formula.and.map((sf, i) =>
+                <FormulaDisplay key={i} formula={sf} properties={properties}/>
+            ))})</span>
         )
     } else if (formula.or) {
-        // TODO: ^
         return (
-            <span>({formula.and.map((sf) =>
-                <FormulaDisplay formula={sf} properties={properties}/>
-            )})</span>
+            <span>({sepWith("∨")(formula.or.map((sf, i) =>
+                <FormulaDisplay key={i} formula={sf} properties={properties}/>
+            ))})</span>
         )
     }
     return (<span/>)
@@ -106,8 +114,10 @@ const preview = (str) => {
 
 const SearchResults = ({results, formula, properties}) => (
     <div>
-        <h2>{results.size} Results</h2>
-        <p>For <FormulaDisplay formula={formula} properties={properties}/></p>
+        <h2>
+            {results.size} Spaces ∋ 
+            <FormulaDisplay formula={formula} properties={properties}/>
+        </h2>
         {results.valueSeq().map((space) => (
              <div key={space.id}>
                  <h4><Link to={"spaces/" + space.id}>{space.name}</Link></h4>
@@ -121,7 +131,7 @@ class Search extends Component {
     render () {
         return (
             <div className="search row">
-                <div className="col-md-5">
+                <div className="col-md-4">
                     <SearchInput
                         q            = {this.props.q}
                         formula      = {this.props.formula}
@@ -129,7 +139,7 @@ class Search extends Component {
                         properties   = {this.props.properties}
                     />
                 </div>
-                <div className="col-md-7">
+                <div className="col-md-8">
                     {this.props.results.size > 0 ? <SearchResults
                         formula    = {this.props.formula}
                         results    = {this.props.results}

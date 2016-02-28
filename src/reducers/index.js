@@ -65,13 +65,17 @@ function searchForSpaceIdsByFormula(state, formula) {
     if (!formula) { return List() }
 
     if (formula.and) {
-        // TODO: union of lists
+        return formula.and.
+            map(f => searchForSpaceIdsByFormula(state, f)).
+            reduce((f1,f2) => f1.intersect(f2))
     } else if (formula.or) {
-        // TODO: intersection of lists
+        return formula.or.
+            map(f => searchForSpaceIdsByFormula(state, f)).
+            reduce((f1,f2) => f1.union(f2))
     } else if (formula.property) {
         return state.traits.filter((props, spaceId) => (
             props[formula.property] === formula.value
-        )).keySeq()
+        )).keySeq().toSet()
     }
 }
 
