@@ -1,26 +1,33 @@
 import { Map, List } from 'immutable'
 
-import { SEARCH } from '../actions'
+import { SEARCH, SELECT_SUGGESTION } from '../actions'
 import * as Formula from '../formula'
 
 const initial = {
     q:                       "",
     formula:                 null,
-    selectedSuggestionIndex: null
+    selectedSuggestionIndex: 0
 }
 
 const search = (state=initial, action) => {
     switch (action.type) {
     case SEARCH:
-        var nu = {q: action.q}
-        nu.formula = Formula.parse(action.q) || state.formula
-        return nu
+        let updates = { q: action.q, selectedSuggestionIndex: 0 }
+        let formula = Formula.parse(action.q)
+        if (formula) { updates.formula = formula }
+        return Object.assign({}, state, updates)
+    case SELECT_SUGGESTION:
+        return Object.assign({}, state, { selectedSuggestionIndex: action.index })
     default:
         return state
     }
 }
 
 export default search
+
+export function selectedSuggestion(state) {
+    return state.search.selectedSuggestionIndex
+}
 
 const lookupIds = (map, ids) => {
     return ids.map(id => map.getIn(['entities', parseInt(id)]))

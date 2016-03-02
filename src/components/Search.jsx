@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import * as P from '../reducers/properties'
 import * as S from '../reducers/search'
-import { search } from '../actions'
+import { search, selectSuggestion } from '../actions'
 import Formula from './formula'
 
 String.prototype.reverse = function() {
@@ -22,24 +22,23 @@ String.prototype.regexLastIndexOf = function( pattern, startIndex ) {
 }
 
 const closeParens = (str) => {
-    var stack = [], str = ""+str, el;
-    str.split("").map(function(c) {
+    let stack = []
+    str.split('').map(c => {
         if (c === '(') {
             stack.push(')')
         } else if (c === ')') {
             stack.pop()
         }
     });
-    while (el = stack.pop()) { str += el }
-    return str
+    return str + stack.reverse.join('')
 }
 
 const fragment = (str) => {
     let fragment, sep = str.regexLastIndexOf(/[~+&|\(\)]/)
     if (sep == -1) {
-      return str.trim()
+        return str.trim()
     } else {
-      return str.slice(sep + 1, str.length).trim()
+        return str.slice(sep + 1, str.length).trim()
     }
 }
 
@@ -48,50 +47,77 @@ const preview = (str) => {
     return str.slice(0, 100)
 }
 
-const TAB = 9, ENTER = 13, UP = 38, DOWN = 40
-
-const handleKeyDown = (e) => {
-    if ([TAB, ENTER, UP, DOWN].includes(e.which)) {
-        e.preventDefault()
-    }
-}
-
-const TypeaheadSuggestions = ({ suggestions }) => (
+const TypeaheadSuggestions = ({ suggestions, selected }) => (
     <div className="list-group">
-        {suggestions.map(p =>
-            <a className="list-group-item" key={p.id} href="#">{p.name}</a>
+        {suggestions.map((p,i) =>
+            <a className={"list-group-item " + (selected == i ? "active" : "")} key={p.id} href="#">{p.name}</a>
         )}
     </div>
 )
 
 const ExampleSearches = ({ handleSearch }) => {
-    let doSearch = (term) => () => handleSearch(term)
-    let search = (term) => {
-        return (<li key={term}><a onClick={doSearch(term)}>{term}</a></li>)
-    }
+    let examples = [
+        "compact + connected",
+        "first countable + separable + ~second countable"
+    ]
 
     return (
         <div>
             <p>Not sure where to start? Try one of these searches:</p>
             <ul>
-                {search("compact + connected")}
-                {search("first countable + separable + ~second countable")}
+                {examples.map(q => (
+                     <li key={q}>
+                         <a onClick={() => handleSearch(q)}>{q}</a>
+                     </li>
+                ))}
             </ul>
         </div>
     )
 }
 
-const SearchInput = ({q, formula, suggestions, handleSearch}) => (
-    <div className="search-input">
-        <input className   = "form-control"
-               placeholder = "Search"
-               value       = {q}
-               onChange    = {(e) => handleSearch(e.target.value)}
-               onKeyDown   = {handleKeyDown}/>
-        {suggestions.length > 0
-            ? <TypeaheadSuggestions suggestions={suggestions}/> : ""}
-    </div>
-)
+const TAB = 9, ENTER = 13, UP = 38, DOWN = 40
+
+const loop = (n, size) => {
+    if (n >= size) { return n - size }
+    if (n < 0)  { return n + size }
+    return n
+}
+
+const expandFragment = (q, expanded) => {
+    let f = fragment(q)
+    // TODO: need to replace on the right
+    return q.replace(f, expanded)
+}
+
+const SearchInput = ({q, formula, suggestions, selectSuggestion, selectedSuggestion, handleSearch}) => {
+    let doChange  = (e) => handleSearch(e.target.value)
+    let doKeyDown = (e) => {
+        if ([TAB, ENTER, UP, DOWN].includes(e.which)) { e.preventDefault() }
+
+        switch (e.which) {
+        case UP:
+            return selectSuggestion(loop(selectedSuggestion - 1, suggestions.length))
+        case DOWN:
+            return selectSuggestion(loop(selectedSuggestion + 1, suggestions.length))
+        case TAB:
+        case ENTER:
+            let expanded = suggestions[selectedSuggestion]
+            return handleSearch(expandFragment(q, expanded.name))
+        }
+    }
+
+    return (
+        <div className="search-input">
+            <input className   = "form-control"
+                   placeholder = "Search"
+                   value       = {q}
+                   onChange    = {doChange}
+                   onKeyDown   = {doKeyDown}/>
+            {suggestions.length > 0
+                ? <TypeaheadSuggestions suggestions={suggestions} selected={selectedSuggestion}/> : ""}
+        </div>
+    )
+}
 
 const SearchResults = ({results, formula, properties}) => (
     <div>
@@ -108,15 +134,17 @@ const SearchResults = ({results, formula, properties}) => (
     </div>
 )
 
-const Search = ({q, formula, properties, suggestions, results, handleSearch}) => (
+const Search = ({q, formula, properties, suggestions, selectSuggestion, selectedSuggestion, results, handleSearch}) => (
     <div className="search row">
         <div className="col-md-4">
             <SearchInput
-                q            = {q}
-                formula      = {formula}
-                properties   = {properties}
-                suggestions  = {suggestions}
-                handleSearch = {handleSearch}
+                q                  = {q}
+                formula            = {formula}
+                properties         = {properties}
+                suggestions        = {suggestions}
+                selectSuggestion   = {selectSuggestion}
+                selectedSuggestion = {selectedSuggestion}
+                handleSearch       = {handleSearch}
             />
         </div>
         <div className="col-md-8">
@@ -131,13 +159,16 @@ const Search = ({q, formula, properties, suggestions, results, handleSearch}) =>
 
 export default connect(
     (state) => ({
-       q:           state.search.q,
-       formula:     S.propertyIdFormula(state),
-       properties:  P.propertyNames(state),
-       suggestions: S.propertyNameSuggestions(state, fragment(state.search.q), 10),
-       results:     S.byFormula(state)
+        q:                  state.search.q,
+        formula:            S.propertyIdFormula(state),
+        properties:         P.propertyNames(state),
+        results:            S.byFormula(state),
+        selectedSuggestion: S.selectedSuggestion(state),
+        suggestions:        S.propertyNameSuggestions(state,
+                                                      fragment(state.search.q), 10),
     }),
     (dispatch) => ({
-        handleSearch: (q) => dispatch(search(q))
+        handleSearch:     (q) => dispatch(search(q)),
+        selectSuggestion: (n) => dispatch(selectSuggestion(n))
     })
 )(Search)

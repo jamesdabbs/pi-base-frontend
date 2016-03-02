@@ -14,8 +14,10 @@ export const FETCH_PROPERTIES = 'FETCH_PROPERTIES'
 export const FETCH_TRAITS     = 'FETCH_TRAITS'
 export const FETCH_SPACE      = 'FETCH_SPACE'
 
-export const SELECT_SPACE = 'SELECT_SPACE'
-export const SEARCH       = 'SEARCH/CHANGE'
+export const SEARCH            = 'SEARCH/CHANGE'
+export const SELECT_SUGGESTION = 'SELECT_SUGGESTION'
+
+export const SELECT_SPACE      = 'SELECT_SPACE'
 
 const fetchStarted  = (type)        => ({ type,        state: FETCH_STARTED  })
 const fetchComplete = (type, data)  => ({ type, data,  state: FETCH_COMPLETE })
@@ -27,6 +29,10 @@ export function warn(message) {
 
 export function search(q) {
     return { type: SEARCH, q }
+}
+
+export function selectSuggestion(index) {
+    return { type: SELECT_SUGGESTION, index }
 }
 
 // TODO: custom get / post / ... functions with host, tokens, &c
