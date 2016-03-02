@@ -7,6 +7,7 @@ import { LOGIN, LOGOUT, FLASH_WARNING, SEARCH } from '../actions'
 import spaces from './spaces'
 import properties from './properties'
 import traits from './traits'
+import * as Formula from '../formula'
 
 const flash = (state={}, action) => {
     switch (action.type) {
@@ -28,10 +29,12 @@ const user = (state=null, action) => {
     }
 }
 
-const search = (state=null, action) => {
+const search = (state={q: "", formula: null}, action) => {
     switch (action.type) {
     case SEARCH:
-        return action.q
+        var nu = {q: action.q}
+        nu.formula = Formula.parse(action.q) || state.formula
+        return nu
     default:
         return state
     }

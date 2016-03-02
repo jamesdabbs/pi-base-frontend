@@ -6,6 +6,8 @@ import * as P from '../reducers/properties'
 import { searchByFormula } from '../reducers'
 import { search } from '../actions'
 
+import formulaParser from '../formula-parser.pegjs'
+
 String.prototype.reverse = function() {
   return this.split('').reverse().join('');
 }
@@ -44,14 +46,6 @@ const fragment = (str) => {
     }
 }
 
-const parseFormula = (q) => {
-    try {
-        return JSON.parse(q)
-    } catch (e) {
-        return null
-    }
-}
-
 const propertySuggestions = (pmap, q) => {
     let suggestions = []
     for(let name in pmap) {
@@ -76,7 +70,7 @@ const FormulaDisplay = ({ formula, properties }) => {
     if (!formula) { return (<span/>) }
 
     if (formula.property) {
-        var label = properties.get(formula.property)
+        var label = properties.get(parseInt(formula.property))
         if (formula.value === false) {
             label = "¬" + label
         }
@@ -102,6 +96,7 @@ class SearchInput extends Component {
         return (
             <div>
                 <input className="form-control" placeholder="Search" onChange={this.props.handleSearch}/>
+                <pre>{JSON.stringify(this.props.formula)}</pre>
             </div>
         )
     }
@@ -140,7 +135,7 @@ class Search extends Component {
                     />
                 </div>
                 <div className="col-md-8">
-                    {this.props.results.size > 0 ? <SearchResults
+                    {this.props.formula ? <SearchResults
                         formula    = {this.props.formula}
                         results    = {this.props.results}
                         properties = {this.props.properties}
@@ -152,17 +147,12 @@ class Search extends Component {
 }
 
 export default connect(
-    (state) => {
-        let q = state.search || ""
-        let formula = parseFormula(q)
-
-        return {
-            q:          q,
-            formula:    formula,
-            properties: P.propertyNames(state),
-            results:    searchByFormula(state, formula)
-        }
-    },
+    (state) => ({
+       q:          state.search.q,
+       formula:    state.search.formula,
+       properties: P.propertyNames(state),
+       results:    searchByFormula(state, state.search.formula)
+    }),
     (dispatch) => ({
         handleSearch: (e) => dispatch(search(e.target.value))
     })
