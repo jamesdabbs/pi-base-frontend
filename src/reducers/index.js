@@ -5,7 +5,7 @@ import { Map, List } from 'immutable'
 import { LOGIN, LOGOUT, FLASH_WARNING, SEARCH } from '../actions'
 
 import spaces from './spaces'
-import properties from './properties'
+import properties, { propertyNames }from './properties'
 import traits from './traits'
 import * as Formula from '../formula'
 
@@ -82,7 +82,32 @@ function searchForSpaceIdsByFormula(state, formula) {
     }
 }
 
-export function searchByFormula(state, formula) {
-    return searchForSpaceIdsByFormula(state, formula).
+export function searchByFormula(state) {
+    return searchForSpaceIdsByFormula(state, propertyIdFormula(state)).
         map(spaceId => state.spaces.getIn(['entities', parseInt(spaceId)]))
 }
+
+export function propertyIdFormula(state) {
+    let names = propertyNames(state).entrySeq()
+    return Formula.map(state.search.formula, (p) => {
+        let l = p.toLowerCase()
+        // TODO: fuzzy match
+        let match = names.find(entry => {
+            return entry[1].toLowerCase() === l
+        })
+        if (match) {
+            return match[0]
+        } else {
+            // TODO: need to collect and display name errors
+            console.error("Failed to parse property", p)
+        }
+    })
+}
+
+export function normalizedFormula(state) {
+    let propNames = properties.propertyNames(state)
+    return Formula.map(propertyIdFormula(state), (atom) => {
+        return propNames.get(parseInt(atom.property))
+    })
+}
+

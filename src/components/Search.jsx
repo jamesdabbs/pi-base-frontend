@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 
 import * as P from '../reducers/properties'
-import { searchByFormula } from '../reducers'
+import { searchByFormula, propertyIdFormula } from '../reducers'
 import { search } from '../actions'
 
 import formulaParser from '../formula-parser.pegjs'
@@ -96,7 +96,7 @@ class SearchInput extends Component {
         return (
             <div>
                 <input className="form-control" placeholder="Search" onChange={this.props.handleSearch}/>
-                <pre>{JSON.stringify(this.props.formula)}</pre>
+                <pre>{JSON.stringify(this.props.formula, null, 2)}</pre>
             </div>
         )
     }
@@ -149,9 +149,9 @@ class Search extends Component {
 export default connect(
     (state) => ({
        q:          state.search.q,
-       formula:    state.search.formula,
+       formula:    propertyIdFormula(state),
        properties: P.propertyNames(state),
-       results:    searchByFormula(state, state.search.formula)
+       results:    searchByFormula(state)
     }),
     (dispatch) => ({
         handleSearch: (e) => dispatch(search(e.target.value))
