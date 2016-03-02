@@ -1,4 +1,5 @@
 import { Map } from 'immutable'
+import Fuse from 'fuse.js'
 
 import { FETCH_PROPERTIES, handleFetch } from '../actions'
 
@@ -13,9 +14,19 @@ export function propertyNames(state) {
 export default function properties(state=initial, action) {
     switch (action.type) {
     case FETCH_PROPERTIES:
-        return handleFetch(state, action, (state, data) => ({
-            entities: Map(data.map(p => [p.id, p]))
-        }))
+        return handleFetch(state, action, (state, data) => {
+            let names = data.map(p => ({ id: p.id, name: p.name }))
+            return {
+                entities:    Map(data.map(p => [p.id, p])),
+                fuzzyFinder: new Fuse(names, {
+                    caseSensitive: false,
+                    shouldSort:    true,
+                    keys:          ['name'],
+                    id:            'id',
+                    threshold:     0.7
+                })
+            }
+        })
     default:
         return state
     }

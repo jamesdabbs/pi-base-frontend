@@ -1,12 +1,11 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 
 import * as P from '../reducers/properties'
-import { searchByFormula, propertyIdFormula } from '../reducers'
+import * as S from '../reducers/search'
 import { search } from '../actions'
-
-import formulaParser from '../formula-parser.pegjs'
+import Formula from './formula'
 
 String.prototype.reverse = function() {
   return this.split('').reverse().join('');
@@ -25,11 +24,9 @@ String.prototype.regexLastIndexOf = function( pattern, startIndex ) {
 const closeParens = (str) => {
     var stack = [], str = ""+str, el;
     str.split("").map(function(c) {
-        if (c === '{') {
-            stack.push('}')
-        } else if (c === '[') {
-            stack.push(']')
-        } else if (c === '}' || c === ']') {
+        if (c === '(') {
+            stack.push(')')
+        } else if (c === ')') {
             stack.pop()
         }
     });
@@ -38,67 +35,11 @@ const closeParens = (str) => {
 }
 
 const fragment = (str) => {
-    var fragment, sep = str.regexLastIndexOf(/[,\[]/)
+    let fragment, sep = str.regexLastIndexOf(/[~+&|\(\)]/)
     if (sep == -1) {
-      return str
+      return str.trim()
     } else {
-      return str.slice(sep + 1, str.length)
-    }
-}
-
-const propertySuggestions = (pmap, q) => {
-    let suggestions = []
-    for(let name in pmap) {
-        if (name.toLowerCase().includes(q)) {
-            suggestions.push(name)
-        }
-    }
-    return suggestions
-}
-
-const sepWith = (delimiter) => (componentArray) => {
-    let result = []
-    componentArray.map((comp,i) => {
-        result.push(comp)
-        result.push(<span key={'sepWith' + i}> {delimiter} </span>)
-    })
-    result.pop()
-    return result
-}
-
-const FormulaDisplay = ({ formula, properties }) => {
-    if (!formula) { return (<span/>) }
-
-    if (formula.property) {
-        var label = properties.get(parseInt(formula.property))
-        if (formula.value === false) {
-            label = "¬" + label
-        }
-        return (<Link to={"property/"+formula.property}>{label}</Link>)
-    } else if (formula.and) {
-        return (
-            <span>({sepWith("∧")(formula.and.map((sf, i) =>
-                <FormulaDisplay key={i} formula={sf} properties={properties}/>
-            ))})</span>
-        )
-    } else if (formula.or) {
-        return (
-            <span>({sepWith("∨")(formula.or.map((sf, i) =>
-                <FormulaDisplay key={i} formula={sf} properties={properties}/>
-            ))})</span>
-        )
-    }
-    return (<span/>)
-}
-
-class SearchInput extends Component {
-    render () {
-        return (
-            <div>
-                <input className="form-control" placeholder="Search" onChange={this.props.handleSearch}/>
-                <pre>{JSON.stringify(this.props.formula, null, 2)}</pre>
-            </div>
-        )
+      return str.slice(sep + 1, str.length).trim()
     }
 }
 
@@ -107,12 +48,57 @@ const preview = (str) => {
     return str.slice(0, 100)
 }
 
+const TAB = 9, ENTER = 13, UP = 38, DOWN = 40
+
+const handleKeyDown = (e) => {
+    if ([TAB, ENTER, UP, DOWN].includes(e.which)) {
+        e.preventDefault()
+    }
+}
+
+const TypeaheadSuggestions = ({ suggestions }) => (
+    <div className="list-group">
+        {suggestions.map(p =>
+            <a className="list-group-item" key={p.id} href="#">{p.name}</a>
+        )}
+    </div>
+)
+
+const ExampleSearches = ({ handleSearch }) => {
+    let doSearch = (term) => () => handleSearch(term)
+    let search = (term) => {
+        return (<li key={term}><a onClick={doSearch(term)}>{term}</a></li>)
+    }
+
+    return (
+        <div>
+            <p>Not sure where to start? Try one of these searches:</p>
+            <ul>
+                {search("compact + connected")}
+                {search("first countable + separable + ~second countable")}
+            </ul>
+        </div>
+    )
+}
+
+const SearchInput = ({q, formula, suggestions, handleSearch}) => (
+    <div className="search-input">
+        <input className   = "form-control"
+               placeholder = "Search"
+               value       = {q}
+               onChange    = {(e) => handleSearch(e.target.value)}
+               onKeyDown   = {handleKeyDown}/>
+        {suggestions.length > 0
+            ? <TypeaheadSuggestions suggestions={suggestions}/> : ""}
+    </div>
+)
+
 const SearchResults = ({results, formula, properties}) => (
     <div>
-        <h2>
-            {results.size} Spaces ∋ 
-            <FormulaDisplay formula={formula} properties={properties}/>
-        </h2>
+        <h3>
+            {results.size} Spaces ∋ {" "}
+            <Formula formula={formula} properties={properties}/>
+        </h3>
         {results.valueSeq().map((space) => (
              <div key={space.id}>
                  <h4><Link to={"spaces/" + space.id}>{space.name}</Link></h4>
@@ -122,38 +108,36 @@ const SearchResults = ({results, formula, properties}) => (
     </div>
 )
 
-class Search extends Component {
-    render () {
-        return (
-            <div className="search row">
-                <div className="col-md-4">
-                    <SearchInput
-                        q            = {this.props.q}
-                        formula      = {this.props.formula}
-                        handleSearch = {this.props.handleSearch}
-                        properties   = {this.props.properties}
-                    />
-                </div>
-                <div className="col-md-8">
-                    {this.props.formula ? <SearchResults
-                        formula    = {this.props.formula}
-                        results    = {this.props.results}
-                        properties = {this.props.properties}
-                    /> : ""}
-                </div>
-            </div>
-        )
-    }
-}
+const Search = ({q, formula, properties, suggestions, results, handleSearch}) => (
+    <div className="search row">
+        <div className="col-md-4">
+            <SearchInput
+                q            = {q}
+                formula      = {formula}
+                properties   = {properties}
+                suggestions  = {suggestions}
+                handleSearch = {handleSearch}
+            />
+        </div>
+        <div className="col-md-8">
+            {formula ? <SearchResults
+                formula    = {formula}
+                results    = {results}
+                properties = {properties}
+            /> : <ExampleSearches handleSearch={handleSearch}/>}
+        </div>
+    </div>
+)
 
 export default connect(
     (state) => ({
-       q:          state.search.q,
-       formula:    propertyIdFormula(state),
-       properties: P.propertyNames(state),
-       results:    searchByFormula(state)
+       q:           state.search.q,
+       formula:     S.propertyIdFormula(state),
+       properties:  P.propertyNames(state),
+       suggestions: S.propertyNameSuggestions(state, fragment(state.search.q), 10),
+       results:     S.byFormula(state)
     }),
     (dispatch) => ({
-        handleSearch: (e) => dispatch(search(e.target.value))
+        handleSearch: (q) => dispatch(search(q))
     })
 )(Search)
