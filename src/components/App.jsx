@@ -2,8 +2,10 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 
-import { refreshProperties, loginWithToken, logout, fetchSpaces, fetchProperties, fetchTraits } from '../actions'
+import { refreshProperties, loginWithToken, logout } from '../actions'
+import * as fetch from '../fetch'
 import Navbar from '../components/Navbar'
+
 
 const tokenFromHash = () => {
     if (location && location.hash && location.hash.startsWith('#token=')) {
@@ -53,9 +55,9 @@ function mapDispatchToProps(dispatch, ownProps) {
         login:  (token) => { dispatch(loginWithToken(token)) },
         logout: () => { dispatch(logout()) },
 
-        fetchTraits:     () => { dispatch(fetchTraits())     },
-        fetchSpaces:     () => { dispatch(fetchSpaces())     },
-        fetchProperties: () => { dispatch(fetchProperties()) }
+        fetchTraits:     () => { dispatch(fetch.traits())     },
+        fetchSpaces:     () => { dispatch(fetch.spaces())     },
+        fetchProperties: () => { dispatch(fetch.properties()) }
     }
 }
 

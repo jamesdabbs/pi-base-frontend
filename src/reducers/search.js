@@ -25,6 +25,11 @@ const search = (state=initial, action) => {
 
 export default search
 
+export const examples = [
+    "compact + connected",
+    "first countable + separable + ~second countable"
+]
+
 export function selectedSuggestion(state) {
     return state.search.selectedSuggestionIndex
 }
@@ -50,9 +55,10 @@ function searchForSpaceIdsByFormula(state, formula) {
             map(f => searchForSpaceIdsByFormula(state, f)).
             reduce((f1,f2) => f1.union(f2))
     } else if (formula.property) {
-        return state.traits.filter((props, spaceId) => (
-            props[formula.property] === formula.value
-        )).keySeq().toSet()
+        let ps = ""+formula.property
+        return state.traits.filter((props, spaceId) => {
+            return props && props.get(ps) === formula.value
+        }).keySeq().toSet()
     }
 }
 

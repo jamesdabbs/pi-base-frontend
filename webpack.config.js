@@ -11,9 +11,12 @@ module.exports = {
             test: /\.jsx?$/,
             exclude: /node_modules/,
             loader: 'react-hot!babel'
-        }, {
+        }, { // TODO: use this in tests
             test: /\.pegjs$/,
             loader: 'pegjs-loader?optimize=size'
+        }, { // This is mostly necessary because isomorphic-fetch => encoding => iconv-lite is complaining
+            test: /\.json$/,
+            loader: 'json'
         }]
     },
     resolve: {

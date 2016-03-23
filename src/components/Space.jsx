@@ -1,9 +1,27 @@
-import React from 'react'
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
 
-const Space = (space) => (
-    <div>
-        <h1>{space.name}</h1>
-    </div>
-)
+import { focusSpace } from '../actions'
+import * as S from '../reducers/spaces'
 
-export default Space
+class Space extends Component {
+    componentWillMount() {
+        this.props.loadSpace(this.props.params.id)
+    }
+
+    render() {
+        return (
+            <div>
+                <h1>{this.props.name}</h1>
+                <div>{this.props.description}</div>
+            </div>
+        )
+    }
+}
+
+export default connect(
+    (state) => (S.selectedSpace(state) || {}),
+    (dispatch) => ({
+        loadSpace: (spaceId) => (dispatch(focusSpace(spaceId)))
+    })
+)(Space)

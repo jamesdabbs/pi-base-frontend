@@ -1,14 +1,7 @@
 import { Map } from 'immutable'
 
-import { FETCH_TRAITS, handleFetch } from '../actions'
+import * as fetch from '../fetch'
 
 export default function traits(state=Map(), action) {
-    switch (action.type) {
-    case FETCH_TRAITS:
-        return handleFetch(state, action, (state, data) => {
-            return Map(data)
-        })
-    default:
-        return state
-    }
+    return fetch.traits.reduceWith(data => data)(state, action)
 }
