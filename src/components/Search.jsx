@@ -21,25 +21,9 @@ String.prototype.regexLastIndexOf = function( pattern, startIndex ) {
   return ( -1 === searchResult ) ? -1 : this.length - ++searchResult;
 }
 
-const closeParens = (str) => {
-    let stack = []
-    str.split('').map(c => {
-        if (c === '(') {
-            stack.push(')')
-        } else if (c === ')') {
-            stack.pop()
-        }
-    });
-    return str + stack.reverse.join('')
-}
-
 const fragment = (str) => {
-    let fragment, sep = str.regexLastIndexOf(/[~+&|\(\)]/)
-    if (sep == -1) {
-        return str.trim()
-    } else {
-        return str.slice(sep + 1, str.length).trim()
-    }
+    const parts = str.split(/[~+&|\(\)]/)
+    return parts[parts.length - 1]
 }
 
 const preview = (str) => {

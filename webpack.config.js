@@ -11,7 +11,7 @@ module.exports = {
             test: /\.jsx?$/,
             exclude: /node_modules/,
             loader: 'react-hot!babel'
-        },{
+        }, {
             test: /\.pegjs$/,
             loader: 'pegjs-loader?optimize=size'
         }]

@@ -2,7 +2,7 @@ import { Map, List } from 'immutable'
 
 import { FETCH_SPACES, FETCH_SPACE, SELECT_SPACE, handleFetch } from '../actions'
 
-const initial = Map({
+const initial = Map().merge({
     entities:   {},
     pageIds:    [],
     selectedId: null,

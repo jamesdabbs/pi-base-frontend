@@ -19,9 +19,9 @@ export const SELECT_SUGGESTION = 'SELECT_SUGGESTION'
 
 export const SELECT_SPACE      = 'SELECT_SPACE'
 
-const fetchStarted  = (type)        => ({ type,        state: FETCH_STARTED  })
-const fetchComplete = (type, data)  => ({ type, data,  state: FETCH_COMPLETE })
-const fetchFailed   = (type, error) => ({ type, error, state: FETCH_FAILED   })
+export const fetchStarted  = (type)        => ({ type,        state: FETCH_STARTED  })
+export const fetchComplete = (type, data)  => ({ type, data,  state: FETCH_COMPLETE })
+export const fetchFailed   = (type, error) => ({ type, error, state: FETCH_FAILED   })
 
 export function warn(message) {
     return { type: FLASH_WARNING, message }
