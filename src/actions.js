@@ -1,5 +1,10 @@
 import * as S from './reducers/spaces'
 
+let fetch
+if (typeof(fetch) === 'undefined') {
+    fetch = require('node-fetch')
+}
+
 export const LOGIN  = 'LOGIN'
 export const LOGOUT = 'LOGOUT'
 
