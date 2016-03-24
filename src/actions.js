@@ -5,10 +5,9 @@ export const LOGOUT = 'LOGOUT'
 
 export const FLASH_WARNING = 'FLASH_WARNING'
 
-export const SEARCH            = 'SEARCH/CHANGE'
-export const SELECT_SUGGESTION = 'SELECT_SUGGESTION'
+export const SEARCH = 'SEARCH/CHANGE'
 
-export const SELECT_SPACE      = 'SELECT_SPACE'
+export const SELECT_SPACE = 'SELECT_SPACE'
 
 
 export function warn(message) {

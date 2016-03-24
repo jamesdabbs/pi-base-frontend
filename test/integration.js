@@ -31,7 +31,7 @@ it('can run a search', () => {
     const store = makeStore(prefetched)
     store.dispatch(search('compact + t_2'))
 
-    const results = Search.byFormula(store.getState())
+    const results = Search.results(store.getState())
     expect(results.count()).to.be.greaterThan(15)
 
     const hit = results.find(space => space.name.includes('Finite'))
@@ -41,9 +41,20 @@ it('can run a search', () => {
 Search.examples.forEach(ex => {
     it(`finds some results for example: ${ex}`, () => {
         const store = makeStore(prefetched)
-        store.dispatch(search('compact + t_2'))
+        store.dispatch(search(ex))
 
-        const results = Search.byFormula(store.getState())
+        const results = Search.results(store.getState())
         expect(results.count()).to.be.greaterThan(3)
     })
+})
+
+it('can expand the search formula', () => {
+    const store = makeStore(prefetched)
+    store.dispatch(search('compact + t_2'))
+
+    const formula = Search.formulaWithProperties(store.getState())
+    expect(formula.subs[0].property.name).to.eql('Compact')
+    expect(formula.subs[0].property.id).to.eql(16)
+    expect(formula.subs[1].property.name).to.eql('$T_2$')
+    expect(formula.subs[1].property.id).to.eql(3)
 })

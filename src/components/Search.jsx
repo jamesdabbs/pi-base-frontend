@@ -1,46 +1,23 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
+import { reduxForm } from 'redux-form'
 
-import * as P from '../reducers/properties'
-import * as S from '../reducers/search'
-import { search, selectSuggestion } from '../actions'
+import { search  } from '../actions'
+import * as Search from '../reducers/search'
+import { preview } from '../util'
 
 import Formula from './Formula'
-import SearchInput from './SearchInput'
+import FormulaInput from './FormulaInput'
 
-String.prototype.reverse = function() {
-  return this.split('').reverse().join('');
-}
-String.prototype.regexIndexOf = function( pattern, startIndex ) {
-  startIndex = startIndex || 0;
-  var searchResult = this.substr( startIndex ).search( pattern );
-  return ( -1 === searchResult ) ? -1 : searchResult + startIndex;
-}
-String.prototype.regexLastIndexOf = function( pattern, startIndex ) {
-  startIndex = startIndex === undefined ? this.length : startIndex;
-  var searchResult = this.substr( 0, startIndex ).reverse().regexIndexOf( pattern, 0 );
-  return ( -1 === searchResult ) ? -1 : this.length - ++searchResult;
-}
-
-const fragment = (str) => {
-    const parts = str.split(/[~+&|\(\)]/)
-    return parts[parts.length - 1]
-}
-
-const preview = (str) => {
-    // FIXME: go by word, don't break LaTeX delimiters, add ... when truncated
-    return str.slice(0, 100)
-}
-
-const ExampleSearches = ({ handleSearch }) => {
+const ExampleSearches = ({ doSearch }) => {
     return (
         <div>
             <p>Not sure where to start? Try one of these searches:</p>
             <ul>
-                {S.examples.map(q => (
+                {Search.examples.map(q => (
                      <li key={q}>
-                         <a href="#" onClick={() => handleSearch(q)}>{q}</a>
+                         <a href="#" onClick={() => doSearch(q)}>{q}</a>
                      </li>
                 ))}
             </ul>
@@ -63,41 +40,35 @@ const SearchResults = ({results, formula, properties}) => (
     </div>
 )
 
-const Search = ({q, formula, properties, suggestions, selectSuggestion, selectedSuggestion, results, handleSearch}) => (
-    <div className="search row">
-        <div className="col-md-4">
-            <SearchInput
-                q                  = {q}
-                formula            = {formula}
-                properties         = {properties}
-                suggestions        = {suggestions}
-                selectSuggestion   = {selectSuggestion}
-                selectedSuggestion = {selectedSuggestion}
-                handleSearch       = {handleSearch}
-            />
-        </div>
-        <div className="col-md-8">
-            {formula ? <SearchResults
-                formula    = {formula}
-                results    = {results}
-                properties = {properties}
-            /> : <ExampleSearches handleSearch={handleSearch}/>}
-        </div>
-    </div>
-)
 
-export default connect(
+const SearchForm = ({ fields: { query }, q, formula, results, doSearch }) => {
+    if (!query.value) { query.value = q }
+
+    return (
+        <form className="search row">
+            <div className="col-md-4">
+                <FormulaInput {...query} onKeyUp={(e) => doSearch(e.target.value)}/>
+            </div>
+            <div className="col-md-8">
+                {results.size > 0
+                ? <SearchResults formula={formula} results={results}/>
+                : <ExampleSearches doSearch={doSearch}/>}
+            </div>
+        </form>
+    )
+}
+
+export default reduxForm(
+    {
+        form:    'search',
+        fields: ['query']
+    },
     (state) => ({
-        q:                  state.search.q,
-        formula:            S.propertyIdFormula(state),
-        properties:         P.propertyNames(state),
-        results:            S.byFormula(state),
-        selectedSuggestion: S.selectedSuggestion(state),
-        suggestions:        S.propertyNameSuggestions(state,
-                                                      fragment(state.search.q), 10),
+        q:       Search.query(state),
+        results: Search.results(state),
+        formula: Search.formulaWithProperties(state)
     }),
     (dispatch) => ({
-        handleSearch:     (q) => dispatch(search(q)),
-        selectSuggestion: (n) => dispatch(selectSuggestion(n))
+        doSearch: (q) => dispatch(search(q))
     })
-)(Search)
+)(SearchForm)

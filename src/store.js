@@ -6,6 +6,7 @@ import reducer from './reducers'
 
 const loggerMiddleware = createLogger({
     predicate: (getState, action) => (
+        // true
         !action.type.endsWith("/CHANGE")
     )
 })

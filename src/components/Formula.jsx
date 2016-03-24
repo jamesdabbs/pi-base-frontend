@@ -15,12 +15,13 @@ const sepWith = (delimiter) => (componentArray) => {
 const Formula = ({ formula, properties }) => {
     if (!formula) { return (<span/>) }
 
+    // TODO: check formula type and make sure that we have attached ids
     if (formula.property) {
-        var label = properties.get(parseInt(formula.property))
+        var label = formula.property.name
         if (formula.value === false) {
             label = "¬" + label
         }
-        return (<Link to={"property/"+formula.property}>{label}</Link>)
+        return (<Link to={"property/"+formula.property.id}>{label}</Link>)
     } else if (formula.and) {
         return (
             <span>({sepWith("∧")(formula.and.map((sf, i) =>

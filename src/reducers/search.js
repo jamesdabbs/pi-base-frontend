@@ -1,23 +1,23 @@
-import { Map, List } from 'immutable'
+import { Map, Set } from 'immutable'
 
-import { SEARCH, SELECT_SUGGESTION } from '../actions'
+import { SEARCH } from '../actions'
 import * as Formula from '../formula'
 
-const initial = {
-    q:                       "",
-    formula:                 null,
-    selectedSuggestionIndex: 0
-}
+const initial = Map().merge({
+    q: "",
+    parsedFormula: null // Store the last valid formula so results don't flicker as we're inputting them
+})
 
 const search = (state=initial, action) => {
     switch (action.type) {
     case SEARCH:
-        let updates = { q: action.q, selectedSuggestionIndex: 0 }
-        let formula = Formula.parse(action.q)
-        if (formula) { updates.formula = formula }
-        return Object.assign({}, state, updates)
-    case SELECT_SUGGESTION:
-        return Object.assign({}, state, { selectedSuggestionIndex: action.index })
+        let formula, updates = { q: action.q }
+
+        if (formula = Formula.parse(action.q)) {
+            updates.parsedFormula = formula
+        }
+
+        return state.merge(updates)
     default:
         return state
     }
@@ -30,21 +30,48 @@ export const examples = [
     "first countable + separable + ~second countable"
 ]
 
-export function selectedSuggestion(state) {
-    return state.search.selectedSuggestionIndex
+export const query = (state) => state.search.get("q")
+
+export const results = (state) => {
+    return resultsForFormula(state, parsedFormula(state))
 }
 
-const lookupIds = (map, ids) => {
+export function formulaWithProperties(state) {
+    const idFormula = addIds(state, parsedFormula(state))
+    if (idFormula) {
+        return idFormula.propertyMap(id => state.properties.getIn(['entities', id]))
+    }
+}
+
+export function propertyNameSuggestions(state, fragment, limit) {
+    let finder = state.properties.get('fuzzyFinder')
+    if (finder && fragment) {
+        let ids = finder.search(fragment)
+        limit = limit || ids.length
+        return lookupEntitiesById(state.properties, ids.slice(0, limit))
+    } else {
+        return []
+    }
+}
+
+
+
+const parsedFormula = (state) => state.search.get('parsedFormula')
+
+const lookupEntitiesById = (map, ids) => {
     return ids.map(id => map.getIn(['entities', parseInt(id)]))
 }
 
-export function byFormula(state) {
-    let ids = searchForSpaceIdsByFormula(state, propertyIdFormula(state))
-    return lookupIds(state.spaces, ids)
+const resultsForFormula = (state, formula) => {
+    if (!formula) { return Set() }
+
+    const pFormula = addIds(state, formula)
+    const matchingSpaceIds = searchForSpaceIdsByFormula(state, pFormula)
+    return lookupEntitiesById(state.spaces, matchingSpaceIds)
 }
 
 function searchForSpaceIdsByFormula(state, formula) {
-    if (!formula) { return List() }
+    if (!formula) { return Set() }
 
     if (formula.and) {
         return formula.and.
@@ -62,30 +89,13 @@ function searchForSpaceIdsByFormula(state, formula) {
     }
 }
 
-export function propertyNameSuggestions(state, fragment, limit) {
-    let finder = state.properties.get('fuzzyFinder')
-    if (finder) {
-        fragment = fragment || state.search.q
-        let ids = finder.search(fragment)
-        limit = limit || ids.length
-        return lookupIds(state.properties, ids.slice(0, limit))
-    } else {
-        return []
-    }
-}
+function addIds(state, formula) {
+    if (!formula) { return }
 
-export function propertyIdFormula(state) {
-    let finder = state.properties.get('fuzzyFinder')
-    return Formula.map(state.search.formula, (p) => {
+    const finder = state.properties.get('fuzzyFinder')
+    return formula.propertyMap(property => {
         // TODO: collect errors if there are no matches
         //       disambiguate when unsure?
-        return finder.search(p)[0]
-    })
-}
-
-export function normalizedFormula(state) {
-    let propNames = properties.propertyNames(state)
-    return Formula.map(propertyIdFormula(state), (atom) => {
-        return propNames.get(parseInt(atom.property))
+        return finder.search(property)[0]
     })
 }
