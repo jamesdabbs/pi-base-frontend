@@ -26,7 +26,7 @@ class Formula {
     }
 }
 
-class Conjunction extends Formula {
+export class Conjunction extends Formula {
     get and() { return this.subs }
 
     toJSON() {
@@ -65,6 +65,16 @@ const buildFormula = (json) => {
         return new Disjunction(json.or.map(buildFormula))
     } else {
         return new Atom(json)
+    }
+}
+
+export function negate(f) {
+    if (f.and) {
+        return new Disjunction(f.subs.map(sf => negate(sf)))
+    } else if (f.or) {
+        return new Conjunction(f.subs.map(sf => negate(sf)))
+    } else {
+        return new Atom({ property: f.property, value: !f.value })
     }
 }
 

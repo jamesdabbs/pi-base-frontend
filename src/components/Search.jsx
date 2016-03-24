@@ -43,10 +43,14 @@ const SearchResults = ({results, formula, properties}) => (
 const SearchForm = ({ fields: { query }, q, formula, results, doSearch }) => {
     if (!query.value) { query.value = q }
 
+    // TODO: this should use the built-in parsing the the FormulaInput
     return (
         <form className="search row">
             <div className="col-md-4">
-                <FormulaInput {...query} onKeyUp={(e) => doSearch(e.target.value)}/>
+            <FormulaInput
+                {...query}
+                onKeyUp={(e) => doSearch(e.target.value)}
+            />
             </div>
             <div className="col-md-8">
                 {results.size > 0

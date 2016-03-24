@@ -30,6 +30,11 @@ export function selectedSpace(state) {
     const id = state.spaces.get('selectedId')
     return state.spaces.getIn(['entities', id])
 }
+export function traitsForSpace(state, space) {
+    if (space) {
+        return state.traits.get(''+space.id)
+    }
+}
 
 const loadSpaces = fetch.spaces.reduceWith(data => {
     return { entities: Map(data.map((space) => [space.id, space])) }

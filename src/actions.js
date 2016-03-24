@@ -1,4 +1,5 @@
 import * as S from './reducers/spaces'
+import * as fetch from './fetch'
 
 export const LOGIN  = 'LOGIN'
 export const LOGOUT = 'LOGOUT'
@@ -55,7 +56,7 @@ export function focusSpace(spaceId) {
     return (dispatch, getState) => {
         dispatch({ type: SELECT_SPACE, spaceId })
         if (!S.selectedSpace(getState())) {
-            return dispatch(fetchSpace(spaceId))
+            return fetch.space(spaceId)
         }
     }
 }

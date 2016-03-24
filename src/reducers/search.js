@@ -54,6 +54,17 @@ export function propertyNameSuggestions(state, fragment, limit) {
     }
 }
 
+export function counterexamples(state, antecedent, consequent) {
+    if (!antecedent || !consequent) { return Set() }
+
+    const implication = new Formula.Conjunction([
+        antecedent,
+        Formula.negate(consequent)
+    ])
+
+    return resultsForFormula(state, implication)
+}
+
 
 
 const parsedFormula = (state) => state.search.get('parsedFormula')

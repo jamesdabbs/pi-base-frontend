@@ -1,4 +1,4 @@
-import { parse } from '../src/formula.js'
+import { parse, negate } from '../src/formula.js'
 
 it('can parse a simple formula', () => {
     expect(
@@ -69,6 +69,22 @@ it('can map over formulae', () => {
                 { property: 16, value: true }
             ]},
             { property: 15, value: true }
+        ]
+    })
+})
+
+it('can negate formulae', () => {
+    const parsed = parse('compact + (connected || not second countable) + ~first countable')
+    const mapped = negate(parsed).toJSON()
+
+    expect(mapped).to.eql({
+        or: [
+            { property: "compact", value: false },
+            { and: [
+                { property: "connected", value: false },
+                { property: "second countable", value: true }
+            ]},
+            { property: "first countable", value: true }
         ]
     })
 })
