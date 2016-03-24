@@ -1,3 +1,4 @@
+import { expect } from 'chai'
 import { parse, negate } from '../src/formula.js'
 
 it('can parse a simple formula', () => {

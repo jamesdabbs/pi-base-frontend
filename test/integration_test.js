@@ -1,3 +1,5 @@
+import { expect } from 'chai'
+
 import { makeStore } from '../src/store'
 
 import * as Search from '../src/reducers/search'
