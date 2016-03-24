@@ -1,6 +1,7 @@
 import React, { Component }from 'react'
 import { connect } from 'react-redux'
 
+import * as Formula from '../formula'
 import * as Search from '../reducers/search'
 import { getFragment, replaceFragment } from '../util'
 
@@ -42,6 +43,13 @@ const FormulaInput = React.createClass({
             return this.props.onChange(replaceFragment(this.props.value, selected))
         }
     },
+    doChange: function(e) {
+        let formula
+        if (this.props.onParse && (formula = Formula.parse(e.target.value))) {
+            this.props.onParse(formula)
+        }
+        this.props.onChange(e)
+    },
     render: function() {
         return (
             <div>
@@ -49,8 +57,9 @@ const FormulaInput = React.createClass({
                     type="text"
                     autoComplete="off"
                     className="form-control"
-                    onKeyDown={this.doKeyDown}
                     {...this.props}
+                    onKeyDown={this.doKeyDown}
+                    onChange={this.doChange}
                 />
                 {this.props.suggestions.length > 0
                   ? <PropertySuggestions suggestions={this.props.suggestions} selected={this.state.selected}/> : ''}
