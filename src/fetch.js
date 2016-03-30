@@ -36,6 +36,7 @@ const reducer = (type, onComplete) => (state, action) => {
     case FETCH_COMPLETE:
         return state.merge({ fetching: false }).merge(onComplete(action.data))
     case FETCH_FAILED:
+        console.error(`Fetch error`, action.error)
         return state.merge({ fetching: false })
     default:
         return {}
@@ -48,9 +49,9 @@ const loader = (type, getUrl) => {
         let url = getUrl(...urlArgs)
         dispatch(fetchStarted(type))
         return fetch(`${root}${url}`)
+            .catch(e => dispatch(fetchFailed(type, e)))
             .then(req => req.json())
             .then(json => dispatch(fetchComplete(type, json)))
-            .catch((e) => dispatch(fetchFailed(type, e)))
     }
 
     runner.reduceWith = (fn) => reducer(type, fn)

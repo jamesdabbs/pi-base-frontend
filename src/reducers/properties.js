@@ -28,3 +28,7 @@ const loadProperties = fetch.properties.reduceWith(data => {
 export default function properties(state=initial, action) {
     return loadProperties(state, action)
 }
+
+export function find(pstate, id) {
+    return pstate.getIn([`entities`, Number(id)])
+}

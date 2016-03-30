@@ -36,6 +36,15 @@ export function traitsForSpace(state, space) {
     }
 }
 
+export function load(state, spaceId) {
+    const space = state.spaces.getIn(['entities', Number(spaceId)])
+    if (space) {
+        return space
+    } else {
+        return { id: spaceId, loading: true }
+    }
+}
+
 const loadSpaces = fetch.spaces.reduceWith(data => {
     return { entities: Map(data.map((space) => [space.id, space])) }
 })

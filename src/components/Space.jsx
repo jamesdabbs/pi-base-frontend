@@ -4,44 +4,31 @@ import { connect } from 'react-redux'
 import { focusSpace } from '../actions'
 import * as S from '../reducers/spaces'
 
-const SpaceProperties = ({properties}) => (
-    // {properties.keys().map(id => <li key={id}>{properties[id].name}</li>)}
-    <ul>
-    </ul>
-)
+import Spinner from './Spinner'
+import Properties from './space/Properties'
+import Tex from './tex'
 
-class Space extends Component {
-    componentWillMount() {
-        this.props.loadSpace(this.props.params.id)
-    }
 
-    render() {
-        const { space, traits, properties } = this.props
+const Space = ({space, traits}) => {
+    if (!space.name || !traits) { return <Spinner/> }
 
-        return (
-            <div>
-                <h1>{space && space.name}</h1>
-                <div>{space && space.description}</div>
-
-                <h2>Properties</h2>
-                {properties
-                    ? <SpaceProperties properties={properties}/>
-                    : ''}
-            </div>
-        )
-    }
+    return (
+        <Tex>
+            <h1>{space.name}</h1>
+            <div>{space.description}</div>
+            <Properties space={space} traits={traits}/>
+        </Tex>
+    )
 }
 
 export default connect(
-    (state) => {
-        const space = S.selectedSpace(state)
+    (state, ownProps) => {
+        const id = ownProps.params.id
+        const space = S.load(state, id)
+
         return {
-            space:      space,
-            traits:     S.traitsForSpace(state, space),
-            properties: state.properties && state.properties.get('entities').toJS() // FIXME: this belongs elsewhere
+            space:  space,
+            traits: S.traitsForSpace(state, space),
         }
-    },
-    (dispatch) => ({
-        loadSpace: (spaceId) => (dispatch(focusSpace(spaceId)))
-    })
+    }
 )(Space)
