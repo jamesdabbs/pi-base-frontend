@@ -3,6 +3,8 @@ import { Map, Set } from 'immutable'
 import { SEARCH } from '../actions'
 import * as Formula from '../formula'
 
+import * as P from './properties'
+
 const initial = Map().merge({
     q: "",
     parsedFormula: null // Store the last valid formula so results don't flicker as we're inputting them
@@ -39,7 +41,7 @@ export const results = (state) => {
 export function formulaWithProperties(state) {
     const idFormula = addIds(state, parsedFormula(state))
     if (idFormula) {
-        return idFormula.propertyMap(id => state.properties.getIn(['entities', id]))
+        return idFormula.propertyMap(id => P.find(state, id))
     }
 }
 
@@ -65,12 +67,10 @@ export function counterexamples(state, antecedent, consequent) {
     return resultsForFormula(state, implication)
 }
 
-
-
 const parsedFormula = (state) => state.search.get('parsedFormula')
 
 const lookupEntitiesById = (map, ids) => {
-    return ids.map(id => map.getIn(['entities', parseInt(id)]))
+    return ids.map(id => map.getIn(['entities', parseInt(id)]).toJS())
 }
 
 const resultsForFormula = (state, formula) => {
@@ -78,7 +78,7 @@ const resultsForFormula = (state, formula) => {
 
     const pFormula = addIds(state, formula)
     const matchingSpaceIds = searchForSpaceIdsByFormula(state, pFormula)
-    return lookupEntitiesById(state.spaces, matchingSpaceIds)
+    return lookupEntitiesById(state.spaces, matchingSpaceIds).sortBy(s => s.name)
 }
 
 function searchForSpaceIdsByFormula(state, formula) {

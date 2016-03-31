@@ -1,22 +1,20 @@
-export const pipelineReducers = (reducers) => {
+export const pipelineReducers = (reducers, initialState) => {
     return (state, action) => {
-        return reducers.reduce((s, reducer) => { return reducer(s, action) }, state)
+        return reducers.reduce((s, reducer) => {
+            return reducer(s, action)
+        }, state || initialState)
     }
 }
 
 export const preview = (latex) => {
     // FIXME: go by word, don't break LaTeX delimiters, add ... when truncated
-    return latex.slice(0, 100)
+    return latex && latex.slice(0, 100)
 }
 
 export const getFragment = (str) => {
     if (!str) { return '' }
     const parts = str.split(/[~+&|\(\)]/)
     return parts[parts.length - 1].trim()
-}
-
-String.prototype.reverse = function() {
-    return this.split('').reverse().join('')
 }
 
 export const replaceFragment = (string, property) => {

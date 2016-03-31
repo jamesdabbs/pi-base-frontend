@@ -10,7 +10,7 @@ import Property      from './Property'
 import Trait         from './Trait'
 import TheoremCreate from './TheoremCreate'
 
-const routes = <Router history={browserHistory}>
+const routes = <Router onUpdate={() => window.scrollTo(0,0)} history={browserHistory}>
     <Route path="/" component={App}>
         <Route path="login" component={Login}/>
         <Route path="search" component={Search}/>

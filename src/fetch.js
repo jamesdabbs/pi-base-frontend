@@ -12,7 +12,9 @@ const FETCH_FAILED   = 'FETCH_FAILED'
 const SPACES     = 'FETCH_SPACES'
 const PROPERTIES = 'FETCH_PROPERTIES'
 const TRAITS     = 'FETCH_TRAITS'
+
 const SPACE      = 'FETCH_SPACE'
+const PROPERTY   = 'FETCH_PROPERTY'
 
 const fetchStarted  = (type)        => ({ type,        state: FETCH_STARTED  })
 const fetchComplete = (type, data)  => ({ type, data,  state: FETCH_COMPLETE })
@@ -34,7 +36,7 @@ const reducer = (type, onComplete) => (state, action) => {
     case FETCH_STARTED:
         return state.merge({ fetching: true })
     case FETCH_COMPLETE:
-        return state.merge({ fetching: false }).merge(onComplete(action.data))
+        return onComplete(state.merge({ fetching: false }), action.data)
     case FETCH_FAILED:
         console.error(`Fetch error`, action.error)
         return state.merge({ fetching: false })
@@ -55,12 +57,14 @@ const loader = (type, getUrl) => {
     }
 
     runner.reduceWith = (fn) => reducer(type, fn)
+    runner.type = type
 
     return runner
 }
 
 
-export const space      = loader(SPACE, (id) => `/spaces/${id}`)
+export const space    = loader(SPACE,    (id) => `/spaces/${id}`)
+export const property = loader(PROPERTY, (id) => `/properties/${id}`)
 
 export const spaces     = loader(SPACES,     () => '/spaces')
 export const properties = loader(PROPERTIES, () => '/properties')

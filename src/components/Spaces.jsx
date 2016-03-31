@@ -3,14 +3,17 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { Pagination } from 'react-bootstrap'
 
-import { syncSpacePage } from '../actions'
 import * as S from '../reducers/spaces'
 
-const Space = (space) => (
+import Markdown from './Markdown'
+import Tex from './Tex'
+
+const SpaceItem = (space) => (
     <div>
-        <h2><Link to={"/spaces/" + space.id}>{space.name}</Link></h2>
-        <p>{space.description}</p>
+        <h3><Link to={"/spaces/" + space.id}>{space.name}</Link></h3>
+        <Markdown>{space.description}</Markdown>
     </div>
+
 )
 
 class Spaces extends Component {
@@ -25,6 +28,8 @@ class Spaces extends Component {
     }
 
     render() {
+        const { spaces } = this.props
+
         return (
             <div>
                 <Pagination
@@ -41,7 +46,9 @@ class Spaces extends Component {
                     Spaces
                     <span className="badge">{this.props.totalItems}</span>
                 </h1>
-                {this.props.spaces.map(space => <Space key={space.id} {...space}/>)}
+                <Tex>
+                  {spaces.map(space => <SpaceItem key={space.id} {...space}/>)}
+                </Tex>
             </div>
         )
     }
@@ -49,12 +56,9 @@ class Spaces extends Component {
 
 export default connect(
     (state) => ({
-        spaces:     S.page(state),
-        activePage: S.activePage(state),
-        totalPages: S.totalPages(state),
-        totalItems: S.totalItems(state)
+        spaces: state.spaces.get('entities').valueSeq().toJS().sortBy(s => s.name)
     }),
     (dispatch) => ({
-        setPage: (n) => { dispatch(syncSpacePage(n)) }
+        setPage: (n) => console.log('should change to page', n)
     })
 )(Spaces)

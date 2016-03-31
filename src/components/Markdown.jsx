@@ -6,7 +6,11 @@ const rawMarkup = (text) => {
 }
 
 const Markdown = ({ text }) => {
-    return <div dangerouslySetInnerHTML={rawMarkup(text)}/>
+    if (text) {
+        return <div className="markdown" dangerouslySetInnerHTML={rawMarkup(text)}/>
+    } else {
+        return <div className="markdown"/>
+    }
 }
 
 export default Markdown

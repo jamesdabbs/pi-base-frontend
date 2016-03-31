@@ -8,8 +8,6 @@ export const FLASH_WARNING = 'FLASH_WARNING'
 
 export const SEARCH = 'SEARCH/CHANGE'
 
-export const SELECT_SPACE = 'SELECT_SPACE'
-
 
 export function warn(message) {
     return { type: FLASH_WARNING, message }
@@ -40,23 +38,5 @@ export function logout(token) {
 
         dispatch({ type: LOGOUT })
         return requestWithToken('/logout', { method: 'DELETE' })
-    }
-}
-
-export function syncSpacePage(n) {
-    return (dispatch, getState) => {
-        if (n !== S.activePage(getState())) {
-            return dispatch(fetchSpacePage(n))
-        }
-    }
-}
-
-export function focusSpace(spaceId) {
-    spaceId = parseInt(spaceId)
-    return (dispatch, getState) => {
-        dispatch({ type: SELECT_SPACE, spaceId })
-        if (!S.selectedSpace(getState())) {
-            return fetch.space(spaceId)
-        }
     }
 }

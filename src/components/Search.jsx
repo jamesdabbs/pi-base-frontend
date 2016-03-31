@@ -25,26 +25,25 @@ const ExampleSearches = ({ doSearch }) => {
     )
 }
 
-const SearchResults = ({results, formula, properties}) => (
-    <Tex>
+const SearchResults = ({results, formula }) => {
+    return <Tex>
         <h3>
             {results.size} Spaces ∋ {" "}
-            <Formula formula={formula} properties={properties}/>
+            <Formula formula={formula}/>
         </h3>
-        {results.valueSeq().map((space) => (
-             <div key={space.id}>
-                 <h4><Link to={"/spaces/" + space.id}>{space.name}</Link></h4>
+        {results.valueSeq().map(space => {
+             return <div key={space.id}>
+                 <h4><Link to={`/spaces/${space.id}`}>{space.name}</Link></h4>
                  <p>{preview(space.description)}</p>
              </div>
-        ))}
+        })}
     </Tex>
-)
+}
 
 
 const SearchForm = ({ fields: { query }, q, formula, results, doSearch }) => {
     if (!query.value) { query.value = q }
 
-    // TODO: this should use the built-in parsing the the FormulaInput
     return (
         <form className="search row">
             <div className="col-md-4">
