@@ -21,7 +21,7 @@ const Formula = ({ formula, properties }) => {
         if (formula.value === false) {
             label = "¬" + label
         }
-        return (<Link to={"property/"+formula.property.id}>{label}</Link>)
+        return (<Link to={"/properties/"+formula.property.id}>{label}</Link>)
     } else if (formula.and) {
         return (
             <span>({sepWith("∧")(formula.and.map((sf, i) =>

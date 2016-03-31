@@ -8,6 +8,7 @@ import { preview } from '../util'
 
 import Formula from './Formula'
 import FormulaInput from './FormulaInput'
+import Tex from './Tex'
 
 const ExampleSearches = ({ doSearch }) => {
     return (
@@ -25,18 +26,18 @@ const ExampleSearches = ({ doSearch }) => {
 }
 
 const SearchResults = ({results, formula, properties}) => (
-    <div>
+    <Tex>
         <h3>
             {results.size} Spaces ∋ {" "}
             <Formula formula={formula} properties={properties}/>
         </h3>
         {results.valueSeq().map((space) => (
              <div key={space.id}>
-                 <h4><Link to={"spaces/" + space.id}>{space.name}</Link></h4>
+                 <h4><Link to={"/spaces/" + space.id}>{space.name}</Link></h4>
                  <p>{preview(space.description)}</p>
              </div>
         ))}
-    </div>
+    </Tex>
 )
 
 

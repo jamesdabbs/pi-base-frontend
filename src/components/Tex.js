@@ -6,7 +6,7 @@ const Tex = React.createClass({
     componentDidUpdate: function() { this.queue() },
     queue: function() {
         const node = ReactDOM.findDOMNode(this)
-        console.log('should queue MathJAX refresh of', node)
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, node])
     },
     render: function() {
         return <div>{this.props.children}</div>

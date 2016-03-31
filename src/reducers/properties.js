@@ -32,3 +32,25 @@ export default function properties(state=initial, action) {
 export function find(pstate, id) {
     return pstate.getIn([`entities`, Number(id)])
 }
+
+export function traitsForProperty(state, property) {
+    // TODO: don't do a scan here?
+    let result = []
+
+    state.traits.entrySeq().forEach(([spaceId, propMap]) => {
+        if (spaceId === `fetching`) { return }
+
+        const value = propMap.get(''+property.id)
+
+        if (value !== undefined) {
+            const space = state.spaces.getIn(['entities', Number(spaceId)])
+            result.push({
+                space:    space,
+                property: property,
+                value:    value
+            })
+        }
+    })
+
+    return result
+}

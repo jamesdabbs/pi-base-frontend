@@ -31,9 +31,18 @@ export function selectedSpace(state) {
     return state.spaces.getIn(['entities', id])
 }
 export function traitsForSpace(state, space) {
-    if (space) {
-        return state.traits.get(''+space.id)
-    }
+    if (!space) { return [] }
+
+    const traitMap = state.traits.get(''+space.id)
+    if (!traitMap) { return [] }
+
+    let results = []
+    traitMap.entrySeq().forEach(([propertyId,value]) => {
+        if (propertyId === `fetching`) { return }
+        const property = state.properties.getIn(['entities', Number(propertyId)])
+        results.push({ space, property, value })
+    })
+    return results
 }
 
 export function load(state, spaceId) {
