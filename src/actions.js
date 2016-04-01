@@ -1,4 +1,5 @@
 import * as S from './reducers/spaces'
+import * as T from './reducers/traits'
 import * as fetch from './fetch'
 
 export const LOGIN  = 'LOGIN'
@@ -38,5 +39,16 @@ export function logout(token) {
 
         dispatch({ type: LOGOUT })
         return requestWithToken('/logout', { method: 'DELETE' })
+    }
+}
+
+export function loadTrait(spaceId, propertyId) {
+    return (dispatch, getState) => {
+        const state = getState()
+        const trait = T.find(state, spaceId, propertyId)
+
+        if (!trait) {
+            dispatch(fetch.trait(spaceId, propertyId))
+        }
     }
 }

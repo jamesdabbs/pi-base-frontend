@@ -3,18 +3,11 @@ if (typeof(fetch) === 'undefined') {
     fetch = require('node-fetch')
 }
 
-const root = "http://localhost:8081"
+const root = "http://localhost:3000"
 
 const FETCH_STARTED  = 'FETCH_STARTED'
 const FETCH_COMPLETE = 'FETCH_COMPLETE'
 const FETCH_FAILED   = 'FETCH_FAILED'
-
-const SPACES     = 'FETCH_SPACES'
-const PROPERTIES = 'FETCH_PROPERTIES'
-const TRAITS     = 'FETCH_TRAITS'
-
-const SPACE      = 'FETCH_SPACE'
-const PROPERTY   = 'FETCH_PROPERTY'
 
 const fetchStarted  = (type)        => ({ type,        state: FETCH_STARTED  })
 const fetchComplete = (type, data)  => ({ type, data,  state: FETCH_COMPLETE })
@@ -46,7 +39,8 @@ const reducer = (type, onComplete) => (state, action) => {
 }
 
 
-const loader = (type, getUrl) => {
+const loader = (name, getUrl) => {
+    const type = `FETCH_${name}`
     let runner = (...urlArgs) => dispatch => {
         let url = getUrl(...urlArgs)
         dispatch(fetchStarted(type))
@@ -63,9 +57,10 @@ const loader = (type, getUrl) => {
 }
 
 
-export const space    = loader(SPACE,    (id) => `/spaces/${id}`)
-export const property = loader(PROPERTY, (id) => `/properties/${id}`)
+export const space    = loader(`SPACE`,    (id) => `/spaces/${id}`)
+export const property = loader(`PROPERTY`, (id) => `/properties/${id}`)
+export const trait    = loader(`TRAIT`,    (s,p) => `/spaces/${s}/properties/${p}`)
 
-export const spaces     = loader(SPACES,     () => '/spaces')
-export const properties = loader(PROPERTIES, () => '/properties')
-export const traits     = loader(TRAITS,     () => '/universe')
+export const spaces     = loader(`SPACES`,     () => '/spaces')
+export const properties = loader(`PROPERTIES`, () => '/properties')
+export const traits     = loader(`TRAITS`,     () => '/universe')

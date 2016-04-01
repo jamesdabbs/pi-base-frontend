@@ -10,49 +10,55 @@ import Tex from './Tex'
 
 const SpaceItem = (space) => (
     <div>
-        <h3><Link to={"/spaces/" + space.id}>{space.name}</Link></h3>
+        <h3><Link to={`/spaces/${space.id}`}>{space.name}</Link></h3>
         <Markdown>{space.description}</Markdown>
     </div>
-
 )
 
-class Spaces extends Component {
-    componentWillMount() {
-        this.props.setPage(1)
-        this.handlePageSelect = this.handlePageSelect.bind(this)
-    }
+const Spaces = React.createClass({
+    getInitialState: function() {
+        return { page: 1 }
+    },
 
-    handlePageSelect(ev,e) {
+    componentWillMount: function() {
+        this.props.setPage(1)
+    },
+
+    handlePageSelect: function(ev,e) {
         ev.preventDefault()
         this.props.setPage(e.eventKey)
-    }
+    },
 
-    render() {
+    page: function() {
+        return this.props.spaces.slice((this.state.page - 1) * 20, 20)
+    },
+
+    render: function() {
         const { spaces } = this.props
 
         return (
             <div>
                 <Pagination
-                    items      = {this.props.totalPages}
+                    items      = {this.props.spaces.length}
                     maxButtons = {7}
                     first      = {true}
                     prev       = {true}
                     next       = {true}
                     last       = {true}
-                    activePage = {this.props.activePage}
+                    activePage = {this.state.page}
                     onSelect   = {this.handlePageSelect}
                 />
                 <h1>
-                    Spaces
-                    <span className="badge">{this.props.totalItems}</span>
+                    Spaces {' '}
+                    {spaces.length ? <span className="badge">{spaces.length}</span> : ''}
                 </h1>
                 <Tex>
-                  {spaces.map(space => <SpaceItem key={space.id} {...space}/>)}
+                  {this.page().map(space => <SpaceItem key={space.id} {...space}/>)}
                 </Tex>
             </div>
         )
     }
-}
+})
 
 export default connect(
     (state) => ({
