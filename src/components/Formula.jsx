@@ -12,7 +12,7 @@ const sepWith = (delimiter) => (componentArray) => {
 }
 
 // TODO: use Formula.map (or something similar)
-const Formula = ({ formula, properties }) => {
+const Formula = ({ formula, link }) => {
     if (!formula) { return (<span/>) }
 
     // TODO: check formula type and make sure that we have attached ids
@@ -21,17 +21,21 @@ const Formula = ({ formula, properties }) => {
         if (formula.value === false) {
             label = "¬" + label
         }
-        return (<Link to={"/properties/"+formula.property.id}>{label}</Link>)
+        if (link === false) {
+            return <span>{label}</span>
+        } else {
+            return <Link to={"/properties/"+formula.property.id}>{label}</Link>
+        }
     } else if (formula.and) {
         return (
             <span>({sepWith("∧")(formula.and.map((sf, i) =>
-                <Formula key={i} formula={sf} properties={properties}/>
+                <Formula key={i} formula={sf} link={link}/>
             ))})</span>
         )
     } else if (formula.or) {
         return (
             <span>({sepWith("∨")(formula.or.map((sf, i) =>
-                <Formula key={i} formula={sf} properties={properties}/>
+                <Formula key={i} formula={sf} link={link}/>
             ))})</span>
         )
     }

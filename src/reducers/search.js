@@ -94,7 +94,7 @@ function searchForSpaceIdsByFormula(state, formula) {
             reduce((f1,f2) => f1.union(f2))
     } else if (formula.property) {
         let ps = ""+formula.property
-        return state.traits.filter((props, spaceId) => {
+        return state.traits.get('table').filter((props, spaceId) => {
             return props && props.get(ps) === formula.value
         }).keySeq().toSet()
     }

@@ -60,7 +60,9 @@ const loader = (name, getUrl) => {
 export const space    = loader(`SPACE`,    (id) => `/spaces/${id}`)
 export const property = loader(`PROPERTY`, (id) => `/properties/${id}`)
 export const trait    = loader(`TRAIT`,    (s,p) => `/spaces/${s}/properties/${p}`)
+export const theorem  = loader(`THEOREM`,  (id) => `/theorems/${id}`)
 
 export const spaces     = loader(`SPACES`,     () => '/spaces')
 export const properties = loader(`PROPERTIES`, () => '/properties')
 export const traits     = loader(`TRAITS`,     () => '/universe')
+export const theorems   = loader(`THEOREMS`,   () => '/theorems')

@@ -58,11 +58,11 @@ class Atom extends Formula {
     }
 }
 
-const buildFormula = (json) => {
+const fromJSON = (json) => {
     if (json.and) {
-        return new Conjunction(json.and.map(buildFormula))
+        return new Conjunction(json.and.map(fromJSON))
     } else if (json.or) {
-        return new Disjunction(json.or.map(buildFormula))
+        return new Disjunction(json.or.map(fromJSON))
     } else {
         return new Atom(json)
     }
@@ -91,7 +91,7 @@ export function parse(q) {
         }
     }
 
-    let formula = buildFormula(parsed)
+    let formula = fromJSON(parsed)
     formula.property_type = PARSED_TEXT
     return formula
 }

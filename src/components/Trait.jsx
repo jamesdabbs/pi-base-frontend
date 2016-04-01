@@ -2,15 +2,28 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 
+import Formula from './Formula'
 import Tex from './Tex'
 import Spinner from './Spinner'
 import * as P from '../reducers/properties'
 import * as T from '../reducers/traits'
+import * as Theorem from '../reducers/theorems'
 import { loadTrait } from '../actions'
 
-const TheoremLink = ({ id }) => {
-    return <Link to={`/theorems/${id}`}>Theorem {id}</Link>
+const _TheoremLink = ({ id, theorem }) => {
+    if (!theorem) { return <Spinner/> }
+
+    return <Link to={`/theorems/${id}`}>
+        <Formula formula={theorem.antecedent} link={false}/>
+        {' ⇒ '}
+        <Formula formula={theorem.consequent} link={false}/>
+    </Link>
 }
+const TheoremLink = connect(
+    (state, ownProps) => {
+        return { theorem: Theorem.find(state, ownProps.id) }
+    }
+)(_TheoremLink)
 
 const _PropertyLink = ({ space_id, property_id, name }) => {
     return <Link to={`/spaces/${space_id}/properties/${property_id}`}>{name}</Link>

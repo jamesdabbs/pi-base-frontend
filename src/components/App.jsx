@@ -22,6 +22,7 @@ class App extends Component {
         this.props.fetchSpaces()
         this.props.fetchProperties()
         this.props.fetchTraits()
+        this.props.fetchTheorems()
 
         const token = tokenFromHash() || tokenFromStorage()
         if (token) { this.props.login(token) }
@@ -57,7 +58,8 @@ function mapDispatchToProps(dispatch, ownProps) {
 
         fetchTraits:     () => { dispatch(fetch.traits())     },
         fetchSpaces:     () => { dispatch(fetch.spaces())     },
-        fetchProperties: () => { dispatch(fetch.properties()) }
+        fetchProperties: () => { dispatch(fetch.properties()) },
+        fetchTheorems:   () => { dispatch(fetch.theorems())   }
     }
 }
 

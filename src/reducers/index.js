@@ -4,10 +4,11 @@ import { Map, List } from 'immutable'
 
 import { LOGIN, LOGOUT, FLASH_WARNING } from '../actions'
 
-import spaces from './spaces'
-import properties, { propertyNames }from './properties'
-import traits from './traits'
-import search from './search'
+import spaces     from './spaces'
+import properties from './properties'
+import traits     from './traits'
+import theorems   from './theorems'
+import search     from './search'
 
 const flash = (state={}, action) => {
     switch (action.type) {
@@ -47,6 +48,7 @@ const piBase = combineReducers({
     spaces,
     properties,
     traits,
+    theorems,
     search,
     form: formReducer
 })
