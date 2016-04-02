@@ -14,7 +14,7 @@ const AutoloadMixin = {
         if (this.props.load) {
             this.props.load(params)
         } else {
-            throw Error('AutoloadMixin required you to implement a `load` method')
+            throw Error('AutoloadMixin requires you to implement a `load` method')
         }
     }
 }

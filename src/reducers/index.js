@@ -10,13 +10,11 @@ import theorems   from './theorems'
 import search     from './search'
 
 const flash = (state, action) => {
-    state = state || {}
-
     switch (action.type) {
     case FLASH_WARNING:
         return { klass: 'warning', message: action.message }
     default:
-        return state
+        return state || {}
     }
 }
 
@@ -27,7 +25,7 @@ const user = (state, action) => {
     case LOGOUT:
         return null
     default:
-        return state
+        return state || null
     }
 }
 
@@ -38,7 +36,7 @@ const token = (state, action) => {
     case LOGOUT:
         return null
     default:
-        return state
+        return state || null
     }
 }
 

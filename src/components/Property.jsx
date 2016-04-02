@@ -41,7 +41,7 @@ export default connect(
     },
     (dispatch, ownProps) => {
         return {
-            loadProperty: () => dispatch(fetch.property(ownProps.params.id))
+            load: () => dispatch(loadProperty(ownProps.params.id))
         }
     }
 )(Property)

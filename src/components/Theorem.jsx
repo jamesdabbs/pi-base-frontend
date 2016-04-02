@@ -10,6 +10,8 @@ import Formula from './Formula'
 import Markdown from './Markdown'
 import Spinner from './Spinner'
 import Tex from './Tex'
+import TraitLink from './links/Trait'
+
 
 const Theorem = React.createClass({
     mixins: [AutoloadMixin],
@@ -25,6 +27,14 @@ const Theorem = React.createClass({
                 <Formula formula={theorem.consequent} link={true}/>
             </h1>
             <Markdown text={theorem.description}/>
+            <h2>Implications</h2>
+            <ul>
+                {theorem.implied_traits.map(trait => (
+                    <li key={`${trait.space_id},${trait.property_id}`}>
+                        <TraitLink trait={trait}/>
+                    </li>
+                ))}
+            </ul>
         </Tex>
     }
 })

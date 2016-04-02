@@ -22,7 +22,8 @@ const processFetchAll = fetch.theorems.reduceWith((state, data) => {
 const processFetchOne = fetch.theorem.reduceWith((state, data) => {
     const updates = {}
     updates[data.id] = {
-        description: data.description
+        description:    data.description,
+        implied_traits: data.implied_traits
     }
     return state.mergeDeepIn(['entities'], fromJS(updates))
 })
