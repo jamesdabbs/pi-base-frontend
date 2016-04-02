@@ -1,9 +1,4 @@
-let fetch
-if (typeof(fetch) === 'undefined') {
-    fetch = require('node-fetch')
-}
-
-const root = "http://localhost:3000"
+const root = `http://localhost:3000`
 
 const FETCH_STARTED  = 'FETCH_STARTED'
 const FETCH_COMPLETE = 'FETCH_COMPLETE'

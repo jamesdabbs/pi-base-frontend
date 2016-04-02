@@ -1,10 +1,11 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-import * as fetch from '../fetch'
-import * as P from '../reducers/properties'
-import * as Traits from '../reducers/traits'
+import * as P from '../queries/properties'
+import * as Traits from '../queries/traits'
+import { loadProperty } from '../actions'
 
+import AutoloadMixin from '../mixins/Autoload'
 import Markdown from './Markdown'
 import Spinner from './Spinner'
 import Tex from './Tex'
@@ -13,9 +14,7 @@ import PropertyTraitItem from './property/TraitItem'
 
 
 const Property = React.createClass({
-    componentWillMount() {
-        this.props.loadProperty()
-    },
+    mixins: [AutoloadMixin],
     render() {
         const { property, traits} = this.props
 

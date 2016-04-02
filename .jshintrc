@@ -1,4 +1,21 @@
 {
+  "esversion": 6,
+
+  "eqeqeq": true,
+  "forin": true,
+  "freeze": true,
+  "plusplus": true,
+  "quotmark": "single",
+  "undef": true,
+  "unused": true,
+  "varstmt": true,
+
   "asi": true,
-  "esversion": 6
+
+  "globals": {
+    "Headers": true,
+    "console": true,
+    "localStorage": true,
+    "fetch": true // FIXME!
+  }
 }

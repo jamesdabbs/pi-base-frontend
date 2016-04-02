@@ -17,11 +17,6 @@ const processFetchOne = fetch.space.reduceWith((state, data) => {
     return state.mergeDeep({entities: entry})
 })
 
-export function find(state, id) {
-    const found = state.spaces.getIn(['entities', Number(id)])
-    return found && found.toJS()
-}
-
 export default pipelineReducers([
     processFetchAll,
     processFetchOne

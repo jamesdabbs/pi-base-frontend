@@ -3,10 +3,6 @@
 //       the test environment
 import parser from './formula-parser.js'
 
-const ATOM = 'ATOM'
-const CONJUNCTION = 'CONJUNCTION'
-const DISJUNCTION = 'DISJUNCTION'
-
 export const PARSED_TEXT             = 'PARSED_TEXT'
 export const NORMALIZED_PROPERTY_IDS = 'NORMALIZED_PROPERTY_IDS'
 export const NORMALIZED_TEXT         = 'NORMALIZED_TEXT'

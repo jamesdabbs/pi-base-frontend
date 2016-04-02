@@ -1,6 +1,5 @@
 import { combineReducers } from 'redux'
 import { reducer as formReducer } from 'redux-form'
-import { Map, List } from 'immutable'
 
 import { LOGIN, LOGOUT, FLASH_WARNING } from '../actions'
 
@@ -10,16 +9,18 @@ import traits     from './traits'
 import theorems   from './theorems'
 import search     from './search'
 
-const flash = (state={}, action) => {
+const flash = (state, action) => {
+    state = state || {}
+
     switch (action.type) {
     case FLASH_WARNING:
-        return { klass: "warning", message: action.message }
+        return { klass: 'warning', message: action.message }
     default:
         return state
     }
 }
 
-const user = (state=null, action) => {
+const user = (state, action) => {
     switch (action.type) {
     case LOGIN:
         return action.user
@@ -30,7 +31,7 @@ const user = (state=null, action) => {
     }
 }
 
-const token = (state=null, action) => {
+const token = (state, action) => {
     switch (action.type) {
     case LOGIN:
         return action.token

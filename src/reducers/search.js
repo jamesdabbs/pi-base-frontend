@@ -3,19 +3,22 @@ import { Map, Set } from 'immutable'
 import { SEARCH } from '../actions'
 import * as Formula from '../formula'
 
-import * as P from './properties'
+import * as P from '../queries/properties'
 
 const initial = Map().merge({
-    q: "",
+    q: '',
     parsedFormula: null // Store the last valid formula so results don't flicker as we're inputting them
 })
 
-const search = (state=initial, action) => {
+const search = (state, action) => {
+    state = state || initial
+
     switch (action.type) {
     case SEARCH:
-        let formula, updates = { q: action.q }
+        const formula = Formula.parse(action.q)
+        const updates = { q: action.q }
 
-        if (formula = Formula.parse(action.q)) {
+        if (formula) {
             updates.parsedFormula = formula
         }
 
@@ -28,11 +31,25 @@ const search = (state=initial, action) => {
 export default search
 
 export const examples = [
-    "compact + connected",
-    "first countable + separable + ~second countable"
+    'compact + connected',
+    'first countable + separable + ~second countable'
 ]
 
-export const query = (state) => state.search.get("q")
+export const query = (state) => state.search.get('q')
+
+const parsedFormula = (state) => state.search.get('parsedFormula')
+
+const lookupEntitiesById = (map, ids) => {
+    return ids.map(id => map.getIn(['entities', parseInt(id)]).toJS())
+}
+
+const resultsForFormula = (state, formula) => {
+    if (!formula) { return Set() }
+
+    const pFormula = addIds(state, formula)
+    const matchingSpaceIds = searchForSpaceIdsByFormula(state, pFormula)
+    return lookupEntitiesById(state.spaces, matchingSpaceIds).sortBy(s => s.name)
+}
 
 export const results = (state) => {
     return resultsForFormula(state, parsedFormula(state))
@@ -67,20 +84,6 @@ export function counterexamples(state, antecedent, consequent) {
     return resultsForFormula(state, implication)
 }
 
-const parsedFormula = (state) => state.search.get('parsedFormula')
-
-const lookupEntitiesById = (map, ids) => {
-    return ids.map(id => map.getIn(['entities', parseInt(id)]).toJS())
-}
-
-const resultsForFormula = (state, formula) => {
-    if (!formula) { return Set() }
-
-    const pFormula = addIds(state, formula)
-    const matchingSpaceIds = searchForSpaceIdsByFormula(state, pFormula)
-    return lookupEntitiesById(state.spaces, matchingSpaceIds).sortBy(s => s.name)
-}
-
 function searchForSpaceIdsByFormula(state, formula) {
     if (!formula) { return Set() }
 
@@ -93,8 +96,8 @@ function searchForSpaceIdsByFormula(state, formula) {
             map(f => searchForSpaceIdsByFormula(state, f)).
             reduce((f1,f2) => f1.union(f2))
     } else if (formula.property) {
-        let ps = ""+formula.property
-        return state.traits.get('table').filter((props, spaceId) => {
+        let ps = ''+formula.property
+        return state.traits.get('table').filter((props) => {
             return props && props.get(ps) === formula.value
         }).keySeq().toSet()
     }

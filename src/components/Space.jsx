@@ -1,10 +1,12 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-import * as S from '../reducers/spaces'
-import * as Traits from '../reducers/traits'
-import * as fetch from '../fetch'
+import * as S      from '../queries/spaces'
+import * as Traits from '../queries/traits'
 
+import { loadSpace } from '../actions'
+
+import AutoloadMixin from '../mixins/Autoload'
 import Markdown from './Markdown'
 import Spinner from './Spinner'
 import Tex from './Tex'
@@ -12,9 +14,7 @@ import TraitList from './TraitList'
 import SpaceTraitItem from './space/TraitItem'
 
 const Space = React.createClass({
-    componentWillMount() {
-        this.props.loadSpace()
-    },
+    mixins: [AutoloadMixin],
     render() {
         const { space, traits } = this.props
 
@@ -31,8 +31,8 @@ const Space = React.createClass({
 })
 
 export default connect(
-    (state, ownProps) => {
-        const space = S.find(state, ownProps.params.id)
+    (state, { params }) => {
+        const space = S.find(state, params.id)
 
         return {
             space:  space,
@@ -41,7 +41,7 @@ export default connect(
     },
     (dispatch, ownProps) => {
         return {
-            loadSpace: () => dispatch(fetch.space(ownProps.params.id))
+            load: ({ id }) => dispatch(loadSpace(id))
         }
     }
 )(Space)

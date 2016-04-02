@@ -4,10 +4,10 @@ import thunkMiddleware from 'redux-thunk'
 
 import reducer from './reducers'
 
-const loggerMiddleware = createLogger({
+export const loggerMiddleware = createLogger({
     predicate: (getState, action) => (
         // true
-        !action.type.endsWith("/CHANGE")
+        !action.type.endsWith('/CHANGE')
     )
 })
 

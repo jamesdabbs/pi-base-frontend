@@ -1,5 +1,5 @@
-import * as S from './reducers/spaces'
-import * as T from './reducers/traits'
+import * as T from './queries/traits'
+
 import * as fetch from './fetch'
 
 export const LOGIN  = 'LOGIN'
@@ -18,37 +18,43 @@ export function search(q) {
     return { type: SEARCH, q }
 }
 
-export function selectSuggestion(index) {
-    return { type: SELECT_SUGGESTION, index }
-}
-
 export function loginWithToken(token) {
     return dispatch => {
-        return requestWithToken('/auth', token).
+        return fetch.requestWithToken('/auth', token).
             then(user => {
-                if (localStorage) { localStorage.setItem("pi-base-session-token", token) }
+                if (localStorage) { localStorage.setItem('pi-base-session-token', token) }
                 dispatch({type: LOGIN, user, token})
             })
     }
 }
 
-export function logout(token) {
+export function logout() {
     return (dispatch, getState) => {
-        if (localStorage) { localStorage.removeItem("pi-base-session-token") }
+        if (localStorage) { localStorage.removeItem('pi-base-session-token') }
         const { token } = getState()
 
         dispatch({ type: LOGOUT })
-        return requestWithToken('/logout', { method: 'DELETE' })
+        return fetch.requestWithToken('/logout', token, { method: 'DELETE' })
     }
 }
 
 export function loadTrait(spaceId, propertyId) {
     return (dispatch, getState) => {
-        const state = getState()
-        const trait = T.find(state, spaceId, propertyId)
+        const trait = T.find(getState(), spaceId, propertyId)
 
         if (!trait) {
             dispatch(fetch.trait(spaceId, propertyId))
         }
     }
+}
+
+// For now, unconditionally refresh
+export function loadSpace(id) {
+    return fetch.space(id)
+}
+export function loadProperty(id) {
+    return fetch.property(id)
+}
+export function loadTheorem(id) {
+    return fetch.theorem(id)
 }

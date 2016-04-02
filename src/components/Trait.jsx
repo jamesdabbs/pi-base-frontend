@@ -2,64 +2,43 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 
-import Formula from './Formula'
-import Tex from './Tex'
-import Spinner from './Spinner'
-import * as P from '../reducers/properties'
-import * as T from '../reducers/traits'
-import * as Theorem from '../reducers/theorems'
+import * as P from '../queries/properties'
+import * as T from '../queries/traits'
 import { loadTrait } from '../actions'
 
-const _TheoremLink = ({ id, theorem }) => {
-    if (!theorem) { return <Spinner/> }
+import Tex from './Tex'
+import Spinner from './Spinner'
 
-    return <Link to={`/theorems/${id}`}>
-        <Formula formula={theorem.antecedent} link={false}/>
-        {' ⇒ '}
-        <Formula formula={theorem.consequent} link={false}/>
-    </Link>
-}
-const TheoremLink = connect(
-    (state, ownProps) => {
-        return { theorem: Theorem.find(state, ownProps.id) }
-    }
-)(_TheoremLink)
-
-const _PropertyLink = ({ space_id, property_id, name }) => {
-    return <Link to={`/spaces/${space_id}/properties/${property_id}`}>{name}</Link>
-}
-const PropertyLink = connect(
-    (state, ownProps) => {
-        return { name: P.find(state, ownProps.property_id).name }
-    }
-)(_PropertyLink)
-
+import AutoloadMixin from '../mixins/Autoload'
+import TheoremLink from './links/Theorem'
+import PropertyLink from './links/Property'
 
 const Proof = ({ space_id, proof }) => {
     return <div>
         <ul>
-            {proof.theorems.map(id => <li key={`t${id}`}><TheoremLink id={id}/></li>)}
+            {proof.theorems.map(id =>
+                <li key={`t${id}`}>
+                    <TheoremLink id={id}/>
+                </li>
+            )}
             {proof.properties.map(({ property_id, value }) =>
-                <li key={`p${property_id}`}><PropertyLink space_id={space_id} property_id={property_id}/></li>
+                <li key={`p${property_id}`}>
+                    {value === false ? `¬` : ``}
+                    <PropertyLink space_id={space_id} property_id={property_id}/>
+                </li>
             )}
         </ul>
     </div>
 }
 
 const Trait = React.createClass({
-    componentDidMount() {
-        this.props.loadTrait(this.props.params)
-    },
-    componentWillReceiveProps({ params }) {
-        if (this.props.params !== params) {
-            this.props.loadTrait(params)
-        }
-    },
-    render() {
+    mixins: [AutoloadMixin],
+    render: function() {
         const { trait } = this.props
-        const label = '' // TODO: true or false
 
         if (!trait || !trait.space || !trait.property) { return <Spinner/> }
+
+        const label = trait.value === false ? `¬` : ``
 
         return <Tex>
             <h1>
@@ -82,7 +61,7 @@ export default connect(
     },
     (dispatch, ownProps) => {
         return {
-            loadTrait: ({ spaceId, propertyId }) => dispatch(loadTrait(spaceId, propertyId))
+            load: ({ spaceId, propertyId }) => dispatch(loadTrait(spaceId, propertyId))
         }
     }
 )(Trait)

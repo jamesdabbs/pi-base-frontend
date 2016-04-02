@@ -1,10 +1,7 @@
-import { Map, fromJS } from 'immutable'
+import { fromJS } from 'immutable'
 
 import * as fetch from '../fetch'
 import { pipelineReducers } from '../util'
-
-import * as Formula from '../formula'
-import * as Property from './properties'
 
 const initial = fromJS({
     entities: {}
@@ -19,21 +16,18 @@ const processFetchAll = fetch.theorems.reduceWith((state, data) => {
             consequent: theorem.consequent
         }
     })
-    return state.mergeIn(['entities'], fromJS(updates))
+    return state.mergeDeepIn(['entities'], fromJS(updates))
 })
 
-export function find(state, id) {
-    const found = state.theorems.getIn(['entities', ''+id])
-    if (!found) { return }
-
-    const fix = (f) => Formula.map(f, id => Property.find(state, id))
-
-    return found.merge({
-        antecedent: fix(found.get('antecedent').toJS()),
-        consequent: fix(found.get('consequent').toJS())
-    }).toJS()
-}
+const processFetchOne = fetch.theorem.reduceWith((state, data) => {
+    const updates = {}
+    updates[data.id] = {
+        description: data.description
+    }
+    return state.mergeDeepIn(['entities'], fromJS(updates))
+})
 
 export default pipelineReducers([
-    processFetchAll
+    processFetchAll,
+    processFetchOne
 ], initial)

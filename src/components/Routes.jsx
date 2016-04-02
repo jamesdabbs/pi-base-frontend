@@ -8,6 +8,7 @@ import Spaces        from './Spaces'
 import Space         from './Space'
 import Property      from './Property'
 import Trait         from './Trait'
+import Theorem       from './Theorem'
 import TheoremCreate from './TheoremCreate'
 
 const routes = <Router onUpdate={() => window.scrollTo(0,0)} history={browserHistory}>
@@ -22,6 +23,7 @@ const routes = <Router onUpdate={() => window.scrollTo(0,0)} history={browserHis
 
         <Route path="spaces/:spaceId/properties/:propertyId" component={Trait}/>
 
+        <Route path="theorems/:id" component={Theorem}/>
         <Route path="theorems/new" component={TheoremCreate}/>
     </Route>
 </Router>
